@@ -1,7 +1,8 @@
-/**
-* Solution to 'Practice Section of chapter 1'
+/*
+Solution to 'Practice Section of chapter 1'
 https://github.com/getify/You-Dont-Know-JS/blob/master/up%20%26%20going/ch1.md
-**/
+
+*/
 
 const TAX_RATE = 0.10;
 const PHONE_PRICE = 89.99;

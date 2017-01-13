@@ -1,11 +1,10 @@
 /*
-
-Exercises from chapter 2 of YDKJS - Up & Going
+Exercises and notes from chapter 2 of YDKJS - Up & Going
 https://github.com/getify/You-Dont-Know-JS/blob/master/up%20%26%20going/ch2.md
 
-*/
+--------------------------------------------------------------------------------
 
-/* TYPES
+TYPES
 - There are 7 built in types available as of ES6, when the symbol type was added:
 string, number, boolean, null, undefined, object, symbol/
 - The return value of typeof is a string indicating the  type of the input value.
@@ -236,3 +235,200 @@ function foo(){
     }
     // b would not be available here
 }
+
+/* CONDITIONALS
+- Javascript utilises if/else if/ else statements as well as switch statementes.
+- Omitting breaks in switch statements means the execution will continue to the next statement, regardless
+of whether the case matches.
+*/
+if (a == 2){
+    // do something
+}
+else if (a == 10){
+    // do something instead
+}
+else {
+    // do a default thing
+}
+
+// equivalent using a swtich statement:
+
+switch(a){
+    case 2:
+        // do something
+        break;
+    case 10:
+        // do something instead
+        break;
+    default:
+        // do a default thing
+}
+
+// concise if else form:
+var a = 5;
+
+var b = a > 7 ? 'a is bigger than 7' : 'a is not bigger than 7';
+
+b;   // 'a is not bigger than 7'
+
+/* STRICT MODE
+- Strict mode forces code to adhere to a tighter set of rules, and should be used.
+- Use it with  a function by adding "use strict"; at the top of a function
+or throughout the document by adding this at the top of the page.
+- One big difference is strict mode disallows the implicit global- variable declaration when var is
+omitted:
+*/
+function foo(){
+    a = 1;
+}
+foo();              // okay
+
+function bar(){
+    "use strict";
+    b = 1;
+}
+bar();              // Uncaught ReferenceError: b is not defined
+
+/* FUNCTIONS AS VALUES
+- In the below code, foo is just a variable in the outer enclosing scope that has a refence to
+the function being declared. i.e. the function itself is a value, jsut like 42 or [1,2,3] would be.
+*/
+function foo(){
+    // ...
+}
+// This allows functions themselves to be values that are assigned to varibles
+// As an anonymous function
+var foo = function(){
+    // ...
+}
+// Or as a named function
+var x = function bar(){
+    // ...
+}
+
+/* Immediately Invoked Funciton Expressions (IIFEs)
+- The following function is invoked straight away after its definition.
+- This is known as an IIFE
+- The syntax looks weird at first, but just involves wrapping the function definition in (),
+then using () to invoke it.
+*/
+(function IIFE(){
+    console.log('Hello World!');
+})();                             // Hello World!
+
+// IIFEs can have return values
+var x = (function IIFE2(){
+    return 42;
+})();
+
+x;   //42
+
+/* CLOSURE
+- 'Think of closure as a way to "remember" and continue to access a function's scope (its variables)
+even once the function has finished running'
+*/
+function makeAdder(x){
+    // 'x' is an inner variable
+
+    // inner function add() uses x, so it has closure over it
+    function add(y){
+        return y+x;
+    };
+    return add;
+}
+
+// addOne gets a reference to the inner add() func with closure over the x param of makeADDER
+var addOne = makeAdder(1);
+addOne(3);                  // 4 (= 3 + 1)
+
+// addTen gets a reference to the inner add() func with closure over the x param of makeADDER
+var addTen = makeAdder(10);
+addTen(3);                  // 13 (= 3 + 10)
+
+/* Modules
+Closure is commonly used with modules to define private implementation of details that is hidden from
+the outside world.
+*/
+
+function User(){
+    var username, password;
+
+    function doLogin(user,pw){
+        username = user;
+        password = pw;
+
+        // more login work
+    }
+
+    var publicAPI = {
+        login: doLogin
+    }
+
+    return publicAPI;
+}
+var fred = User();    // create a 'User' module instance
+fred.login('fred','112hasfj8893');
+/*
+- Username, password and dologin are private inner details that cannot be accessed from outside
+- Executing User() creates a new copy of all these inner variables/ functions assigned to Fred
+- doLogin has closue over username & password, so will retain access to them after User() finishes running.
+- This allows us to call the public method login, which has access to these variables
+*/
+
+/* this IDENTIFIER
+- A this reference inside a function usually points to an object, but which object depends
+on how the function is called.
+- this does not refer to the function itself, as is a common misconception
+*/
+
+function foo(){
+    console.log( this.bar );
+}
+
+var bar = 'global';
+
+var obj1 = {
+    bar: 'obj1',
+    foo: foo
+};
+
+var obj2 = {
+    bar: 'obj2'
+}
+
+foo();              // 'global' // this set to global object (would not work in strict mode)
+obj1.foo();         // 'obj1'   // this set to obj1 object
+foo.call( obj2 );   // 'obj2'    // this set to obj2 object
+new foo();          // undefined  // this set to a brand new empty object
+
+/* PROTOTYPES
+- Javascript essentially uses an object's internal protype reference as a fallback if we try to access
+a property that doesn't exist:
+*/
+var foo = {
+    a: 42
+}
+
+var bar = Object.create( foo ); // create bar and protoype link it to foo
+
+bar.b = 'hello world';
+
+bar.b;    // 'hello world'
+bar.a;    // 42    // 'falls back' to foo using the prototype link
+
+/* POLYFILLING
+- Polyfilling makes a newer feature of javascript avaiable in older browsers that don't support it
+by using some code to produce the expected behaviour.
+- e.g. ES6 defines the utility Number.isNaN to check for NaN values. We can polyfil this in older
+browsers with the following code (which utilisis the fact NaN is the only value not equal to itself):
+*/
+if (!Number.isNaN){
+    Number.isNaN = function isNaN(x){
+        return x !== x;
+    };
+}
+
+/* TRANSPILING
+- Transpiling (transforming + compiling) just involves taking newer (e.g. ES6) syntax and making it
+backwards compatible for older browsers.
+*/
