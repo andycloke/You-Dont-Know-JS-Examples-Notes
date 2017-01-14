@@ -7,7 +7,7 @@ https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/ch
 - Scope is the set of rules for storing and accessing variables
 
 COMPILER THEORY
-- Despite common misconceptions, javascript is a compiled languaged.
+- Despite common misconceptions, javascript is a compiled language.
 - The compilation is usually done immediately before the code is executed.
 - Loosly, code compilation involves three steps:
     1. Tokenizing/ Lexing: breaking up a string of characters into small, meaningful chunks (tokens).
@@ -17,7 +17,7 @@ COMPILER THEORY
 - There are other steps, e.g. optimisation of the executable.
 
 UNDERSTANDING SCOPE
-- The ENGINE is responsibel for start-to-finish compilation and execution of the JS program.
+- The ENGINE is responsible for start-to-finish compilation and execution of the JS program.
 - The COMPILER handles the parsing and code-generation, as discussed above. A friend of ENGINE.
 - SCOPE collects and maintains a look-up list of all the declared identified (variables), and enforces
   a set of rules as to how they are accessible. Also a friend of ENGINE.

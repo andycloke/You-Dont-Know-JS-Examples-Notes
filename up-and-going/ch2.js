@@ -20,7 +20,7 @@ a = true;
 typeof a;    // 'boolean'
 
 a = null;
-typeof a;   // 'object - this is a bug'
+typeof a;   // 'object' - this is a bug
 
 a = undefined;
 typeof a;   // 'undefined'
@@ -35,7 +35,8 @@ typeof a;   // 'symbol'
 - Objects are essentially compound values - you set named locations within the object that each hold a value.
 - Properties are accessed through dot / bracket notation. Dot notation is preferred for aethestic/ readability
 reasons.
-- Bracket notation is useful when you want to use special characters or the prop name is stored as another variable.
+- Bracket notation is useful when you want to use special characters or the prop name is stored as another
+variable.
 */
 
 var obj = {
@@ -52,9 +53,9 @@ b = 'a';
 obj[b];      // 'hello world'
 
 /* ARRAYS
-- Arrays are a subtype of objects that hold values in numerically indexed positioned
-- These values can be of any type, and one array can hold a mixture of types
-- Arrays have properites that are automatically created and updated, such as length
+- Arrays are a subtype of objects that hold values in numerically indexed positioned.
+- These values can be of any type, and one array can hold a mixture of types.
+- Arrays have properites that are automatically created and updated, such as length.
 */
 
 var arr = ['hello world', 42, true];
@@ -99,7 +100,7 @@ b.toFixed(2);       // 3.14
 Coercion
 - When the type of a value is converted
 
- Explicit coercion: clear from the code that a conversion from one type to another will take place*/
+Explicit coercion: clear from the code that a conversion from one type to another will take place*/
 var a = '42';
 var b = Number(a);
 
