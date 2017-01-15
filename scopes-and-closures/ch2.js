@@ -35,11 +35,11 @@ doesn't find what it's looking for, then moves to the global scope.
         -> We can use the same variable name inside of each scope, known as shadowing.
 
 - Global variables are automatically properties of the global object (e.g. window in browsers), so we can
-reference glboal variable `a` as `window.a`.
+reference global variable `a` as `window.a`.
 
 CHEATING LEXICAL
 - Lexical scope is defined by the author's choice of where blocks are written.
-- Howver there are two ways to cheat lexical scope.
+- However there are two ways to cheat lexical scope.
 - Both are frowned upon and cause poorer performance.
 
 EVAL
@@ -49,15 +49,15 @@ EVAL
 cheating lexical scope.
 */
 function foo(str, a =){
-    eval(str);           // it is know as if var b = 3 had been written here.
+    eval(str);           // it is now as if var b = 3 had been written here.
     console.log(a, b);   // the lookup of b will find b = 3 in foo's scope, rather than the b = 2 in global scope.
 }
 const b = 2;
 foo('var b = 3', 1); // 1 3
 
-/* `with` (Now depreciated)
+/* with (Now depreciated)
 - The `with` statement takes an object, and treats that object as if it is a wholly separate lexical scope.
-- The object's properties are treated as lexically defined identifiers in that `scope`.
+- The object's properties are treated as lexically defined identifiers in that scope.
 */
 function foo(obj){
     with(obj){

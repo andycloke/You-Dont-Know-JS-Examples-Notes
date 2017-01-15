@@ -57,7 +57,7 @@ console.log(a);
 
 // LHS / RHS not always on one side of the = assignment operator:
 
-function foo(a){  // 2: implied assignment of a = 2. LHS lookup for a
+function foo(a){     // 2: implied assignment of a = 2. LHS lookup for a
     console.log(a);  // 3: RHS lookup for value of a.
                      // 4: RHS lookup for console object. Prop resolution occurs to see if it has a method called log.
                      // 5. LHS/ RHS lookups within implementation of log()

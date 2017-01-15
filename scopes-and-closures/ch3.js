@@ -28,7 +28,9 @@ console.log(a, b, c); // ReferenceError
 - In line with the 'Principle of Least Privilige/ Least Authority/ Least Exposure' - only expose what is
 necessary. Hide everythin else.
 */
+
 // Here the doSomethingElse() and variable b should be hidden within the implementaion of doSomething():
+
 function doSomething(a){
     b = a + doSomethingElse(a * 2);
     console.log(b * 3);
@@ -38,7 +40,9 @@ function doSomethingElse(a){
 }
 let b;
 doSomething(2);   // 15
-// Better: b and doSomething not accessible from outside doSomething so less likely to be abused.
+
+// Better: 'b' and 'doSomething' not accessible from outside doSomething so less likely to be abused:
+
 function doSomething(a){
     function doSomethingElse(a){
         return a -1;
@@ -51,7 +55,7 @@ doSomething(2);    // 15
 /* Collision Avoidance
 - Hiding variables and functions avoids collisions between two different identifiers with the same name
 but different intended uses.
-- In the code below the for loop will ruhn forever since bar overwrites the values of i to 3, which is less
+- In the code below the for loop will run forever since bar overwrites the values of i to 3, which is less
 than 10.
 - The solution is to use var/let/const i = 3 or pick another name.
 - Collision particularly likely in the global scope, so libraires and modules hide their identifiers from the
@@ -115,7 +119,7 @@ console.log( a );   // 2
 - We can guarantee that the undefined parameter is actually the undefined value by adding it as a parameter
 but not passing in a value for this parameter.
 - Why? Any parameter that isn't assigned a value will take the value 'undefined'. So naming this parameter
-undefined means undefined === undefined.
+undefined means undefined === undefined:
 */
 undefined = true;    // shouldn't ever do this, but could have been done by accident somewhere
 (function IIFE( undefined )){
@@ -126,16 +130,16 @@ undefined = true;    // shouldn't ever do this, but could have been done by acci
 })();
 
 /* BLOCKS AS SCOPES
-- Many other languages support block scope - where a declared inside a for loop/ if statement
-will only be accessible within the block of that loop/ statment.
+- Many other languages support block scope - where a variable declared inside a for loop/ if statement
+will only be accessible within the block of that loop/ statement.
 - This conforms to the 'Principle of Least Exposue', but is not supported by JavaScript except
-in the following cases. N.B. - the 'let' case is the most significant as it essentially allows
+in the following cases. N.B. - the 'let/ const' cases are the most significant as it essentially provides
 block scoping.
 
 with
-- As seen in chapter 2, the with statement is an example of block scope - the scope that is created
+- As seen in chapter 2, the 'with' statement is an example of block scope - the scope that is created
 from the object only exists for the lifetime of that with statement, and not in the enclosing scope.
-- However with should not be used.
+- However 'with' should not be used.
 
 try/ catch
 - the err exists only in the catch clause. It can not be referenced elsewhere:
@@ -160,7 +164,7 @@ if(foo){
 }
 console.log( bar ); // ReferenceError
 
-// we can make this explicit by creating arbitrary block with { ... }:
+// we can make this explicit by creating an arbitrary block with { ... }:
 var foo = true;
 if(foo){
     {
