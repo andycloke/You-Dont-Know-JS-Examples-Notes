@@ -1,5 +1,5 @@
 /* Chapter 1: 'this' or That?
-Notes and example code from ch1 of the 'this' & Object Prototypes book in the YDKJS Series
+Notes and example code from ch1 of the 'this' & Object Prototypes book in the YDKJS series
 https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch1.md
 
 --------------------------------------------------------------------------------

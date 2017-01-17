@@ -1,5 +1,5 @@
 /* Chapter 3: Objects
-Notes and example code from ch3 of the 'this' & Object Prototypes book in the YDKJS Series
+Notes and example code from ch3 of the 'this' & Object Prototypes book in the YDKJS series
 https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch3.md
 
 --------------------------------------------------------------------------------
@@ -299,3 +299,201 @@ Freeze
 - So creates a forzen object which is completely immutable - you can only read it.
 - Remember that if the object contains references to other objects/ functions, these will still be muttable.
     - To 'deep freeze' an object, you would have to recursively freeze the object at each reference.
+
+[[Get]]
+
+- When we access an object's property, the code actually performs a '[[Get]]' operation.
+- [[Get]] first inspect the object for a property with the requested name and returns it if it finds it.
+- [[Get]] does some other important things if it doesn't find the property.
+- More of these will be examined in Ch5, but one is that it returns 'undefined' if it can't find the property:
+- N.B.this is different to trying to access a variable which cannot be resolved within the applicable lexical scope
+which would return a ReferenceError.
+*/
+var myObject = {
+    a: 2
+};
+
+myObject.b;         // undefined
+
+// we actually get exactly the same result (but via a different process) if the property's value is 'undefined':
+var myObject = {
+    a: undefined
+};
+
+myObject.a;     // undefined
+myObject.b;     // undefined
+
+/* [[Put]]
+- [[Put]] is invoked when we want to create/ overwrite an object property.
+- When [[Put]] is invoked it asks does the property already exist?
+    Yes:
+        1. Is the property an accessor descriptor?
+            Yes: call the setter.
+        2. Is the property a data descriptor with 'writable: false'?
+            Yes: silently fail (non-strict mode) / TypeError (strict mode)
+        3. Otherwise set the value to the existing property as normal.
+
+Getters & Setters - (accessor properties)
+- [[Get]] and [[Put]] completely control how values are set & retrieved.
+- However ES5 introduced getters & setters, which allow us to overwrite them:
+*/
+var myObject = {
+    // define a getter for `a`
+    get a(){
+        return 2;
+    }
+};
+
+Object.defineProperty(
+    myObject,       // target
+    'b',            // property name
+    {
+        // define a getter for `b`
+        get: function(){ return this.a * 2 },
+
+        // make sure `b` shows up as an object property
+        enumerable: true
+    }
+);
+
+myObject.a;     // 2
+myObject.b;     // 4
+// because we did not define a setter, trying to overwrite the value of `a` will silently fail:
+myObject.a = 3;
+myObject.a;     // 2
+
+// defining a setter will allow us to change values:
+var myObject = {
+    // define a getter for `a`
+    get a(){
+        return this.a;
+    },
+
+    // define a setter for `a`
+    set a(val){
+        this.a = val;
+    }
+};
+
+myObject.a = 5;
+myObject.a;         // 5
+
+/* Existence
+- Earlier we said that a property value of `undefined` is indistinguishable from the object not vahing that property
+when we try to access it, as they both return `undefined`.
+- To do so, we need:
+    - `in` which check if the object has a property, or if it is in the higher level `Prototype` chain (more in ch5)
+        - n.b. `in` check property name, not value, so be careful.
+    - 'hasOwnProperty' checks only if the object has the property or not.
+*/
+var myObject = {
+    a: 2
+};
+
+('a' in myObject);      // true
+('b' in myObject);      // false
+
+myObject.hasOwnProperty('a');   // true
+myObject.hasOwnProperty('b');   // false
+
+/* Enumeration
+*/
+var myObject = { };
+
+Object.defineProperty(
+    myObject,
+    'a',
+    // make `a` enumerable (default behaviour, so done for demo. purposes)
+    { enumerable: true, value: 1 }
+);
+
+Object.defineProperty(
+    myObject,
+    'b',
+    // make `b` non-enumerable
+    { enumerable: false, value: 2 }
+);
+
+myObject.b;         // 3
+('b' in myObject);  // true - suprising as `in` sounds like enumeration, but it isn't, it's just a lookup
+myObject.hasOwnProperty('b');   // true
+
+for (var k in myObject){
+    console.log( k, myObject[k] );
+}
+// 'a' 2
+/*
+- `b` doesn't show up when the objects properties are iterated through, because it is non-enumerable
+- for..in loops can give unexpected results when used with arrays, as they will iterate through each indice
+AND each object property - so use for..in with objects that aren't arrays.
+*/
+var myObject = { };
+
+Object.defineProperty(
+    myObject,
+    'a',
+    // make `a` enumerable (default behaviour, so done for demo. purposes)
+    { enumerable: true, value: 1 }
+);
+
+Object.defineProperty(
+    myObject,
+    'b',
+    // make `b` non-enumerable
+    { enumerable: false, value: 2 }
+);
+myObject.propertyIsEnumerable( 'a' );       // true // tests whether property name exists directly on object and is enumerable:true
+myObject.propertyIsEnumerable( 'b' );       // false // tests whether property name exists directly on object and is enumerable:true
+
+Object.keys( myObject );                    // ['a']        // returns an array of all enumerable properties
+Object.getOwnPropertyNames( myObject );     // ['a', 'b']   // all properties, enumerable or not
+/*
+- Neither `keys(..)` or `getOwnPropertyNames(..)` traverse the [[Prototype]] chain.
+
+ITERATION
+- for..in iterates over enuemrable properties of an object, including its [[Protoype]] chain.
+    - N.B. that the order of iteration is not guaranteed.
+- How do we iterate over values?
+*/
+var myArray = ['a', 'b', 'c'];
+
+for (var i = 0; i < myArray.length; i++){
+    console.log(myArray[i]);
+}
+// 'a'
+// 'b'
+// 'c'
+/*
+- We haven't actually iterated over values, we've iterated over indices, then used each indice in `myArray[i]`.
+
+- forEach/ever/some each accept a function callback to apply to each element in an array.
+- `forEach(..)` will iterate over the values of an array, ignoring any callback return values.
+- `every(..)` will iterate over the values of an array, stoping if a callback returns `true`/ a truthy value.
+- `some(..)` will iterate over the values of an array, stoping if a callback returns `false`/ a falsy value.
+
+- ES6 provides the 'for..of' loop syntax, which iterates over values directly.
+*/
+var myArray = ['a', 'b', 'c'];
+
+for (var v of myArray) {
+    console.log( v );
+}
+// 'a'
+// 'b'
+// 'c'
+
+/*
+- `for..of` makes use of an iterator object from a default internal object known as @@iterator of the thing
+to be iterated, then calls that iterator object's `next()` method once for each loop iteration.
+- works well for arrays, as they have a built-in @@iterator
+- let's manually iterate through an array for display purposes:
+*/
+var myArray = [ 1, 2, 3];
+var it = myArray[Symbol.iterator]();
+
+it.next();      // { value: 1, done: false }
+it.next();      // { value: 2, done: false }
+it.next();      // { value: 3, done: false }
+it.next();      // { done: true }
+
+// we can define custom @@iterators.
