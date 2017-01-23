@@ -219,3 +219,200 @@ a.toPrecision( 6 );     // '42.5900'
 
 0b11110011;     // binary for: 243
 0B11110011;     // ditto
+
+/* SMALL DECIMAL VALUES
+- The representations of small decimal values in binary floating point are not exact.
+Famously:
+*/
+0.1 + 0.2 === 0.3;      // false
+/*
+- 0.1 + 0.2 actually equals 0.30000000000000004.
+- If we need to do a comparison such as the one above, we use a small "tolerance" value,
+known as machine epsilon, often 2^-52.
+    - As of ES6, thic can be accessed as Number.EPSILON.
+*/
+function numbersCloseToEqual(n1,n2){
+    return Math.abs( n1 - n2 ) < Number.EPSILON;
+}
+numbersCloseToEqual( (0.1 + 0.2), 0.3);     // true
+/*
+- The maximum possible number is about 1.798e+308, represented as `Number.MAX_VALUE`
+- Similarly the minimum is about 5e-324, stored as `Number.MIN_VALUE`;
+
+Safe Integer Ranges
+- The max numbers that can be "safely" represented - i.e. stored unambiguously is about 2^53 - 1
+represented as `Number.MAX_SAFE_INTEGER` in ES6.
+- Similarly there is `Number.MIN_SAFE_INTEGER`
+
+- Use (ES6) `Number.isInteger` and `Number.isSafeInteger` to that a number is an integer and a safe
+integer respectively.
+
+SPECIAL VALUES
+
+The Nonvalue Values
+- For both `undefined` & `null`, the label is both its type and its value.
+- `null` cannot be used as an identifier. Unfortunately `undefined` can:
+
+Undefined
+- In non-strict mode, undefined can be reassigned to other values:
+*/
+function foo(){
+    undefined = 2;      // really bad idea;
+}
+foo();
+
+function foo(){
+    'use strict';
+    undefined = 2;      // TypeError!
+}
+foo();
+// In both strict/ non-strict mode, you can create a local variable with the name undefined:
+function foo(){
+    'use strict';
+    var undefined = 2;
+    console.log( undefined );   // 2
+}
+foo();
+
+/* `void`
+
+- The expression `void x` "voids" out `x`, so that the result of the expression is always the `undefined` value.
+*/
+var a = 42;
+console.log( void a );       // undefined
+console.log( a );            // 42
+
+/* SPECIAL NUMBERS
+
+The not number, number
+- `NaN` is the result when you perform a mathematical operation without both operands being numbers.
+- `NaN` stands for "not a number", but this is very confusing. It should be thought of as a failed number.
+- The `typeof NaN` is, confusingly, number.
+*/
+var a = 2 / 'foo';      // Nan
+typeof a === 'number';  // true
+/*
+- NaN is the only value which is never equal to itself.
+- using the built-in `isNaN(..)` to test for NaN is flawed, since anything that is not a number
+will return as true, when we actually just wnt things that are equal to NaN.
+*/
+var a = 2 / 'foo';
+var b = 'foo';
+
+isNaN( a );     // true
+isNaN( b );     // true  - bug! - should be false
+
+/*
+- ES6 provides Number.isNaN(..), which has the expected behaviour.
+
+Infinities
+*/
+var a = 1 / 0;      // Infinity (Number.POSITIVE_INFINITY)
+var b = -1 / 0;     // -Infinity (Number.NEGATIVE_INFINITY)
+
+// Infinity also results when you calculate a number outside the range of values handled by JS:
+
+var a = Number.MAX_VALUE;   // 1.798e+308
+a + a;                      // Infinity
+a + Math.pow( 2, 970 );     // Infinity
+a + Math.pow( 2, 969 );     // 1.798e+308
+/*
+- In a crude sense, JS rounds to nearest specified value, so Number.MAX_VALUE + Math.pow( 2, 969 ) is closer to
+Number.MAX_VALUE, whilst Number.MAX_VALUE + Math.pow( 2, 970 ) is closer to Infinity.
+
+Zeroes
+- Javascript has a negative zero, which can be the result of multiplication/ division, but not addition/ subtraction.
+- This is useful in order to store directional data.*/
+var a = 0 / -3;     // -0
+var b = 0 * -3;     // -0
+/*
+- If you stringify a negative 0, it will always be reported as '0'.
+- The reverse, going from a string representation of a negative 0 to a number, doesn't loose the negative.*/
+a = 0 / -3;             // -0
+a.toString();           // '0'
+a + '';                 // '0'
+JSON.stringify( a );    // '0'
+
+// Reverse:
++'-0';                  // -0
+Number( '-0' );         // -0
+JSON.parse( '-0' );     // -0
+
+// -0 is equal to 0
+var a = 0;
+var b = 0 / -3;
+a == b;             // true
+-0 == 0;            // true
+a === b;            // true
+-0 === 0;           // true
+a > b;              // false
+0 > -0;             // false
+
+// to determine if negative 0:
+function isNegZero(n){
+    n = Number( n );
+    return (n === 0) && (1/n === -Infinity);
+}
+isNegZero( -0 );    // true
+isNegZero( 0 );     // false
+
+/* SPECIAL EQUALITY
+- ES6 provides `Object.is(..)` which tests for equality of two special values, without the weird
+exceptions described above.
+*/
+var a = 2 / 'foo';
+Object.is( a, NaN );    // true
+
+var b = -3 * 0;
+Object.is( b, -0 );     // false
+
+/* VALUE VERSUS REFERENCE
+- A reference in JS points at a shared value, so if you have 10 different references, they are always distinct
+references to the a single shared value.
+- There are no syntactic hints tht control value/ reference (e.g `&` and `*` in C).
+    - Instead the type of the value alone determines whetehr the value is assigned by value-copy or reference-copy.
+- Simple values (scalar primitives) are always passed/ assigned by value-copy:
+    null, undefined, string, number, boolean, symbol (ES6)
+- Compount values create a copy of the reference:
+    - objects (including arrays and all boxed obejct wrappers) and functions.
+*/
+var a = 2;
+var b = a;      // since `a` is a number, `b` is always a copy of the value in `a`
+b++;
+a;      // 2
+b;      // 3
+
+var c = [1,2,3];
+var d = c;          // `d` is a reference to the shared `[1,2,3]` value, since the vlue is an array (object)
+d.push( 4 );
+c;      // [1,2,3,4]
+d;      // [1,2,3,4]
+/*
+- To effectively pass an array by value-copy, rather than reference, you can use `slice()` with its default parameters to make a
+shallow copy of it.
+*/
+foo( a.slice() );   // copy of array a
+
+// To do the reverse - pass a scalar primitive by "reference", use a wrapper object;
+function foo(wrapper){
+    wrapper.a = 42;
+}
+var obj = {
+    a: 2
+};
+
+foo ( obj );
+obj.a;          // 42
+
+/* You cannot do this by using a `Number` object wrapper, since the underlying scalar primitive value is immutable and a copy will be created;
+*/
+function foo(x){
+    x = x + 1;
+    x;          // 3
+}
+
+var a = 2;
+var b = new Number( a );    // or equivalently 'Object(a)'
+
+foo ( b );
+console.log( b );       // 2, not 3
