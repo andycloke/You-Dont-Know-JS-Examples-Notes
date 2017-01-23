@@ -257,4 +257,55 @@ if (a.indexOf( 'lo' ) != -1){
 - However it doesn't work the same on negative numbers and can't be used on non 32-bit values.
 
 Explicitly: Parsing Numeric Strings
+- Can achieve similar results by parsing a number out of a string's character contents, bu there are differences:
+*/
+var a = '42';
+Number( a );        // 42
+parseInt( a );      // 42
+
+var b = '42px';
+Number( b );        // NaN // Coercion is not tolerant of non-numeric characters. It fails when it hits one.
+parseInt( b );      // 42  // parsing is tolerant of non-numeric characters. It just stops parsing when it hits one.
+
+/*
+- `parseInt(..)` only operates on string values. It would make no sense to use it on any other type of value.
+- If you do pass another type of value, the value will be coerced into a string, which might have unexpected results.
+- `parseInt(..)` pre-ES5 required a second character to specify the base to determine the int in, otherwise the first
+letter of the string determined it (x/X -> hexadecimal. 0 -> octal).
+    - Now the default is base-10, but the optional second parameter can be used to specify another base.
+
+Explicitly: * --> Boolean.
+
+- Where * is any non-boolean value.
+- `Boolean(..)` is a way of  forcing the ToBoolean coercion:
+*/
+Boolean( '0' );     // true
+Boolean( [] );      // true
+Boolean( {} );      // true
+
+Boolean( '' );      // false
+Boolean( 0 );       // false
+Boolean( null );    // false
+var g;
+Boolean( g );       // false
+
+/*
+- Using the `!` operator will coerce a number into the boolean type. However it will also flip the parity.
+- We can use `!!` to coerce and flip the parity twice, i.e. preserve the parity.
+*/
+var a = '0';
+!!a;            // true
+
+var d = '';
+!!d;            // false
+
+/* IMPLICIT COERCION
+
+- Implicit coercion makes code harder to understand.
+- Most complaints about coercion in JS are about implicit coercion.
+- Doesn't to be all bad:
+    - Let's define the goal of implicit coercion as reducing verbosity, boilerplate and/or
+    unecessary implemenatation detail - noise.
+
+Simplifying Implicitly
 */
