@@ -308,4 +308,387 @@ var d = '';
     unecessary implemenatation detail - noise.
 
 Simplifying Implicitly
+- Pseudo-code for two consecutive type conversions: y's type -> AnotherType -> SomeType:*/
+SomeType x = SomeType( AnotherType( y ) )
+// Much simpler implicitly:
+SomeType x = SomeType( y )
+/*
+- `y` is implicitly converted to `AnotherType` first.
+- There are some scenarios, such as this one, where implicit conversion simplifies things.
+
+Implicitly: Strings <--> Numbers
+- If either operand is a string, or is an object that becomes a string with the `ToPrimitive` operation followed by the
+[[DefaultValue]] (identical to how `ToNumber`) treats objects, then the operands of `+` are concatenated.
+-  Otherwise they are added.
 */
+var a = '42';
+var b = '0';
+
+var c = 42;
+var d = 0;
+
+a + b:      // '420'
+c + d;      // 42
+
+var a = [1,2];
+var b = [3,4];
+
+a + b;      // '1,23,4'
+
+// You can therefore coerce a number to a string as so:
+var a = 42;
+var b = a + '';
+
+b;      // '42'
+
+// One quirk, which is unlikely to come up.
+var a = {
+    valueOf: function(){ return 42; },
+    toString: function(){ return 4; }
+};
+
+a + '';         // '42'
+
+String( a );    // '4'
+
+// Coercing from string to number can use the - operator, as this is only defined for numeric operands:
+var a = '3.14';
+var b = a - 0;
+
+b;      // 3.14
+
+// Objects behave similarly to how they do with +:
+var a = [3];
+var b = [1];
+
+a - b;          // 2
+
+/*
+- Each array is coerced into a string, then into a number for the - to perform.
+- Implicit coercion between strings and numbers is generally not to confusing.
+
+Implicitly: Booleans --> Numbers
+- Not a general purpose technique, but a very useful for specific cases.
+- Consider the following code, which will return true only if exactly one input is true.
+*/
+function onlyOne(a,b,c){
+    return !!((a && !b && !c) ||
+              (!a && b && !c) || (!a && !b && c));
+}
+var a = true;
+var b = false;
+
+onlyOne( a, b, b );     // true
+onlyOne( b, a, b );     // true
+
+onlyOne( a, b, a );     // true
+/*
+- If we wanted to handled 4/5/6 etc arguments, coercing boolean to numbers would be useful.
+- In the first function below we do this implicitly using the + operator in the line `sum += arguments[i]`.
+*/
+function onlyOne(){
+    var sum = 0;
+    for (var i=0; i < arguments.length; i++){
+        // skip falsy values. same as treating them as 0's. but avoids NaNs.
+        if (arguments[i]){
+            sum += arguments[i];
+        }
+    }
+    return sum == 1;
+}
+
+var a = true;
+var b = false;
+
+onlyOne( b, a );                    // true
+onlyOne( b, a, a, b, b, a, b);      // true
+onlyOne( b, b );                    // false
+
+// Using explicit coercion:
+
+function onlyOne(){
+    var sum = 0;
+    for (var i = 0; i < arguments.length; i++){
+        sum += Number( !!arguments[i] );
+    }
+    return sum === 1;
+}
+/*
+- `!!` is used to coerce the value to boolean. This allows us to pass in non-boolean values.
+- `Number(..)` is then used to coerce it to a number, so make sure the value is 0 or 1.
+- The first solution, which uses implicit coercion, is arguably more elegant.
+- Either way, both of the functions which use coercion are much more straight forward than the top one using && etc.
+    - Consider that you could easily make `onlyFive` by changing the bottom line to `return sum == 5`.
+
+Implicitly: * --> Boolean
+- Rather troublesome when * is not a string/ number.
+- We see this coercion as X in these locations:
+    1. if( X )
+    2. for( .. ; X ; .. )
+    3. while( X ) and do..while( X )
+    4. X ? .. : ..
+    5. X || .. as well as X && ..
+
+- `\\` and `&&` act as "operand selectors" that return the underlying value of one of the operands, rather than
+a boolean value.
+    - first they implicit coercion, then they return the appropriate value.
+- When you see these operators in, e.g., if statements, there is an additional implicit coercion step afterwards to a boolean value.
+*/
+var a = 42;
+var b = 'abc';
+var c = null;
+
+a || b;         // 42
+a && b;         // 'abc'
+
+c || b;         // 'abc'
+c && b;         // null
+
+a || b;
+// roughly equivalent to:
+a ? a : b;
+
+a & b;
+// roughly equivalent to:
+a ? b : a;
+
+/* You'll often see the following used to set default parameters. Need to be careful
+that you don't want to input a falsy value, e.g. '', as this would revert to the default.*/
+
+function foo(a){
+    a = a || 'default output'
+    console.log( a );
+}
+
+// the following is used by JS minifiers, often called the "guard opertor"
+function foo(){
+    console.log( a );
+}
+
+var a = 42;
+
+a && foo();     // 42
+
+/* Symbol Coercion
+- Implicit coercion of symbols to strings will throw an error.
+- Symbols cannot coerce to numbers.
+- Symbols can be coerced implicitly and explicitly to boolean.
+*/
+var s1 = Symbol( 'cool' );
+String( s1 );                   // 'Symbol(cool)'
+
+var s2 = Symbol( 'not cool' );
+s2 + '';                        // TypeError
+
+/* LOOSE EQUALS VERSUS STRICT EQUALS
+== allows coercion in the equality comparison and === disallows coercion
+
+NOT: == checks values for equality and === checks values and types for equality
+
+- If the values have different types, == will do more work as it has to coerce them.
+- Under the second, incorrect statement, we'd think === would do more work as it has to check values,
+THEN check types.
+
+Abstract Equality
+- The == operator's behaviour is defined as "The Abstract Equality Comparison Algorithm".
+
+- If the two operands are of the same type, they are compared as you'd expect, with two exceptions.
+    1. NaN is never equal to itself.
+    2. +0 is equal to -0.
+- Two objects (including objects/ arrays) are considered equal if they are references to the exact same value. No coercion required.
+
+- If the two values are of different types:
+
+Comparing: strings to numbers
+
+- Strings are coerced into numbers, rather than the other way around.
+*/
+var a = 42;
+var b = '42';
+
+a === b;        // false
+a == b;         // true
+/*
+- In the second case, '42' is coerced into 42, as defined in the specification.
+
+Comparing: anything to boolean
+
+- If we compare a boolean value to a number, the boolean is coerced into a number.*/
+var x = true;
+var y = '42';
+
+x == y;         // false
+/*
+1. true is coerced into 1.
+2. '42' is coerced into 42.
+3. 1 == 42 returns false.
+
+- Get the same when x = false, so '42' is neither true or false, even though it is truthy!
+- Important thing is that `ToBoolean` is never involved. Instead booleans are always dealt with using `ToNumber`.
+- Quite confusing, avoid `== true` and `== false`.
+*/
+var x = false;
+var y = '42';
+
+x == y;         // false
+
+/* Comparing: nulls to undefineds
+- null and undefined are treated as indistinguishable for comparison purposes.
+- the `==` operator allows their mutual implicit coercion.
+- Falsy values are not treated as equal (see below).
+- So as long as you remember, and treat null and undefined as equal, this is a succint way to
+test equality.
+*/
+var a = null;
+var b;      // undefined
+
+a == b;     // true
+a == null;  // true
+b == null;  // true
+
+a == false; // false
+b == false; // false
+a == '';    // false
+b == '';    // false
+a == 0;     // false
+b == 0;     // false
+
+/* Comparing: objects to nonobjects
+- If one side is a string/number/boolean, the object on the other side is coerced using `ToPrimitive` then compared.
+    - N.B. if the one side is a boolean, it will be coerced to a Number.
+*/
+var a = 42;
+var b = [ 42 ];
+
+a == b;     // true
+
+/*
+1. b is coerced into '42'.
+2. '42' is coerced into 42.
+3. 42 == 42 returns true.
+
+- N.B. all the quirks described earlier with `toString()` and `valueOf()` apply here.
+
+- Unboxing takes place when an object wrapper around a primitive value is unwrapped, and the underlying primitive value returned:
+*/
+
+var a = 'abc';
+var b = Object( a );    // same as `new String( a )`
+
+a === b;                // false
+a == b;                 // true     // b is coerced via `ToPrimitive` to its underlying `abc`
+
+// some quirks:
+var a = null;
+var b = Object( a );   // same as `Object()`
+a == b;                // false
+
+var c = undefined;
+var d = Object( c );    // same as `Object()`
+c == d;                 // false
+
+var e = NaN;
+var f = Object( e );    // same as `new Number( e )`
+e == f;                 // false
+
+/* Edge Cases
+
+- Modifying the prototype can cause crazy bugs, but you'd be crazy to modify it...
+*/
+Number.prototype.valueOf = function(){
+    return 3;
+};
+
+new Number( 2 ) == 3;       // true
+2 == 3;                     // false (doesn't invoke valueOf, since both are primitives)
+
+var i = 2;
+
+Number.protype.valueOf = function(){
+    return i++;
+};
+
+var a = new Number( 42 );
+
+if (a == 2 && a == 3){
+    console.log( 'Yep, this happened.' );
+}
+
+/* Falsy Comparisons
+- Most common complaint agaisnt coercion are how falsy values behave when compared agaisnt each other.
+- Most of the following are predictable, but there are 7 false positives marked with "UH OH!"
+- By avoiding `== false`, as advised earlier, this 7 is reduced to 3.
+*/
+'0' == null;            // false
+'0' == undefined;       // false
+'0' == false;           // true - UH OH!
+'0' == NaN;             // false
+'0' == 0;               // true
+'0' == '';              // false
+
+false == null;          // false
+false == undefined;     // false
+false == NaN;           // false
+false == 0;             // true - UH OH!
+false == '';            // true - UH OH!
+false == [];            // true - UH OH!
+false == {};            // false
+
+'' == null;             // false
+'' == undefined;        // false
+'' == NaN;              // false
+'' == 0;                // true - UH OH!
+'' == [];               // true - UH OH!
+'' == {};               // true - UH OH!
+
+0 == null;              // false
+0 == undefined;         // false
+0 == NaN;               // false
+0 == [];                // true - UH OH!
+0 == {};                // false
+
+// The Crazy Ones
+[] == ![];       // true
+/*
+- RHS coerced explicitly by ! to `false`.
+- `[] == false` is one of the gotcha false positives listed above.*/
+
+0 == '\n';      // true
+/*
+- RHS coerced to a number, as usual. It is coerced to 0.
+
+Heuristics for safely using implicit coercion:
+- If either side of the comparison can have true/ false values, avoid ==.
+- If either side can have [], '', or 0, you should probably avoid ==.
+
+ABSTRACT RELATIONAL COMPARISON ( < )
+- First calls ToPrimitive on both values.
+- If either return value is not a string, both are coerced to numbers and compared numerically:*/
+var a = [ 42 ];
+var b = [ '43' ];
+
+a < b;  // true
+b < a;  // false
+
+// If both are strings, a natural alphabetic comparison is made, starting with first characters.
+var a = [ '42' ];
+var b = [ '043' ];
+
+a < b;      // false        // because 4 > 0
+
+// the same:
+var a = [ 4, 2 ];
+var b = [ 0, 4, 3];
+
+a < b;      // false
+
+// both become `[object Object]`, so they are equal and a is not less than b
+var a = { b: 42 };
+var b = { b: 43 };
+
+a < b;      // false
+a == b;     // false    // not references to the same object, so not equal
+a > b;      // false
+
+a <= b;     // true     // actually does b < a (false), then negates the result
+a >= b;     // true     // actually does b < a (false), then negates the result
