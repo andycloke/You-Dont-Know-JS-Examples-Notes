@@ -1,5 +1,5 @@
 /* Chapter 5: Grammar
-Notes and example code from ch4 of the Types & Grammar book in the YDKJS series
+Notes and example code from ch1 of the Types & Grammar book in the YDKJS series
 https://github.com/getify/You-Dont-Know-JS/blob/master/types%20%26%20grammar/ch5.md
 
 --------------------------------------------------------------------------------
