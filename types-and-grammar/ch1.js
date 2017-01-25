@@ -37,14 +37,14 @@ const a = null;
 // `typeof` can also test for functions, even though functions are actually a subtype of object
 typeof function a(){ /* .. */ } === 'function';     // true
 /*
-- Functions being objects is useful, since they can hve properties.
+- Functions being objects is useful, since they can have properties.
 - e.g. `.length` gives the number of formal parameters of a functions
 */
 function a(b,c){
     // ...
 }
 a.length;   // 2
-// Arrays are a "subtype" of object, but unlike functions have type "object":
+// Arrays are also a "subtype" of object, but unlike functions have type "object":
 typeof [1,2,3] === 'object';        // true
 
 /* VALUES AS TYPES

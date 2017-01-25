@@ -7,12 +7,12 @@ https://github.com/getify/You-Dont-Know-JS/blob/master/types%20%26%20grammar/ch4
 CONVERTING VALUES
 
 - Converting a value is often called "type casting" when done explicitly and "coercion" when done implicitly.
-- We will refer to them as explicit coercion, when the coercion is obvious, and implicit coercion, when it is more subtle.
+- We will refer to them as explicit coercion, when the coercion is relatively obvious, and implicit coercion, when it is subtler.
 - Coercion will always result in a scalar primitive value.
 */
 var a = 42;
 
-var b = a + "";         // implicity coercion
+var b = a + "";         // implicit coercion
 
 var c = String( a );    // explicit coercion
 
@@ -24,7 +24,7 @@ functions/ syntax etc.
 ABSTRACT VALUE OPERATIONS
 
 ToString
-- When any non-string value is converted to a string representation using `.toString()`, it is handled b te ToString operation.
+- When any non-string value is converted to a string representation using `.toString()`, it is handled by the ToString operation.
 - Generally quite predictable
     - null -> 'null'
     - undefined -> 'undefined'
@@ -45,7 +45,7 @@ or replaced with null if part of an array.
 are also considered non-safe JSON values. Will throw an error if called with JSON.stringify();
 */
 JSON.stringify( 42 );           // '42'
-JSON.stringify( '42' );         // ''42''
+JSON.stringify( '42' );         // ''42''       // string of a string!
 JSON.stringify( null );         // 'null'
 JSON.stringify( true );         // 'true'
 JSON.stringify( undefined );    // undefined
@@ -95,8 +95,9 @@ var a = {
 };
 JSON.stringify( a, ['b','c'] );     // "{"b":42,"c":"42"}"
 
-/* If the replacer is a function, it will be called on the object itself, as well as every property in the object.
-Each time it is passed two arguments, a key and value. To skip a key in the serialization, return undefined, else return
+/*
+- If the replacer is a function, it will be called on the object itself, as well as every property in the object.
+- Each time it is passed two arguments, a key and value. To skip a key in the serialization, return undefined, else return
 the value provided.
 - Below, first the object `a` is passed. `k` will be undefined, so the function returns undefined.
 - Then each object property is passed as k, which filters out the property named `c`.
@@ -106,16 +107,18 @@ JSON.stringify( a, function(k,v)
     if (k !== "c") return v;
 } );                                // "{"b":"42","d":[1,2,3]}"
 
-/* A third argument, space, can be passed into JSON.stringify.
+/*
+- A third argument, space, can be passed into JSON.stringify.
 - If space is a positive integer, that many spaces will be indented in front of each object property.
 - If space is a string, that string will be used to indent each property.
 
 ToNumber
+
 - If any number is used in a way that requries it to be a number, `.toNumber()` is called.
     - true -> 1
     - false -> 0
     - undefined -> NaN
-    - null -> 0 Wierd!
+    - null -> 0             Wierd!
     - '42' -> 42
     - 'abc' -> NaN
     - '0020' (octal value) -> 20
@@ -154,7 +157,7 @@ Number( [ 'abc' ] );    // NaN
 
 Falsy Values
 - All JS values can ber coerced into two categories:
-    - Values tht will become `false` if coerced to boolean (known as falsy values).
+    - Values that will become `false` if coerced to boolean (known as falsy values).
         - undefined
         - null
         - false
@@ -164,14 +167,18 @@ Falsy Values
         - everything else
 
 Falsy Objects
-- A falsy obejct is a value that looks and acts like a normal object, but evaluates to false when coered into a boolean.
-    - They are not objects wrapped around false values, e.g. `var a = new Boolean( false )`, which are actually true.
+- A falsy object is a value that looks and acts like a normal object, but evaluates to false when coered into a boolean.
+
+    - They are not objects wrapped around false values, e.g. `var a = new Boolean( false )`, which are actually truthy.
+
+    - They are provided by environment etc, not the JS language/ spec.
+
 - `document.all`, provided by the DOM, is the most well-known case.
     - Used to be used to detect old versions of IE. `if (document.all) { // It's IE }`
     - Can't get rid of as lots of legacy code still has it, so easier to make it equivalent evaluate to false.
 
 Truthy Values
-- Anything not on the list of falsy values is truthy, including the following strings.
+- Anything not on the list of falsy values is truthy and will return true when coerced into a boolean, including the following strings.
 */
 var a = 'false';        // true
 var b = '0';            // true
@@ -203,15 +210,15 @@ var b = a.toString();   // actually boxes the primitive value 42 as an object, t
 var c = '3.14';
 var d = +c;             // "unary operator" form (operator with onlu one operand) - explicit once you know it!
 
-/* Date to number
-- Another common use of the unary operator (seen above) is to coerce a Date object into a number, which will be the
-Unix timestamp.
-*/
+// Date to number
+// Another common use of the unary operator (seen above) is to coerce a Date object into a number, which will be the
+// Unix timestamp.
+
 var d = new Date( 'Mon, 18 Aug 2014 08:53:06 CDT');
 
 +d;        // 1408369986000
 
-// often seen as:
+// Coercion of the current date to a number is often seen as:
 var timestamp = +new Date();
 
 // when a constructor call has no arguments, you can omit the ():
@@ -227,7 +234,7 @@ var timestamp = Date.now();
 - the ~ operator represents bitwise NOT.
 - Bitwise operations are defined only for 32-bit operations, which means they force their operands to conform to 32-bit
 value representations.
-- They will therfoer coerce values into a 32-bit value represenation using `ToInt32`.
+- They will therfore coerce values into a 32-bit value represenation using `ToInt32`.
     - Initially `ToInt32` does a ToNumber coercion.
     - Then coerces into 32-bit value represenation.
     - Then flips each bit (e.g. 0 -> 1)
@@ -240,9 +247,9 @@ var a = 'Hello World';
 
 ~a.indexOf( 'lo' );     // -4   // truthy
 ~a.indexOf( 'ol' );     // 0   // falsy
-!~a.indexOf( 'ol' );    // 0   // true
+!~a.indexOf( 'ol' );    // 0   // truthy
 
-// better than:
+// The above is more succinct than:
 var a = 'Hello World';
 
 if (a.indexOf( 'lo' ) >= 0){
@@ -257,7 +264,7 @@ if (a.indexOf( 'lo' ) != -1){
 - However it doesn't work the same on negative numbers and can't be used on non 32-bit values.
 
 Explicitly: Parsing Numeric Strings
-- Can achieve similar results by parsing a number out of a string's character contents, bu there are differences:
+- Can achieve similar results by parsing a number out of a string's character contents, but there are differences:
 */
 var a = '42';
 Number( a );        // 42
@@ -287,7 +294,7 @@ Boolean( '' );      // false
 Boolean( 0 );       // false
 Boolean( null );    // false
 var g;
-Boolean( g );       // false
+Boolean( g );       // false (g is the `undefined` value)
 
 /*
 - Using the `!` operator will coerce a number into the boolean type. However it will also flip the parity.
@@ -351,7 +358,7 @@ a + '';         // '42'
 
 String( a );    // '4'
 
-// Coercing from string to number can use the - operator, as this is only defined for numeric operands:
+// Coercing from string to number can be done using the - operator, as this is only defined for numeric operands:
 var a = '3.14';
 var b = a - 0;
 
@@ -365,7 +372,7 @@ a - b;          // 2
 
 /*
 - Each array is coerced into a string, then into a number for the - to perform.
-- Implicit coercion between strings and numbers is generally not to confusing.
+- Implicit coercion between strings and numbers is generally not too confusing.
 
 Implicitly: Booleans --> Numbers
 - Not a general purpose technique, but a very useful for specific cases.
@@ -417,7 +424,7 @@ function onlyOne(){
 - `!!` is used to coerce the value to boolean. This allows us to pass in non-boolean values.
 - `Number(..)` is then used to coerce it to a number, so make sure the value is 0 or 1.
 - The first solution, which uses implicit coercion, is arguably more elegant.
-- Either way, both of the functions which use coercion are much more straight forward than the top one using && etc.
+- Either way, both of the functions which use coercion are much more straight forward than the top one (which uses && etc).
     - Consider that you could easily make `onlyFive` by changing the bottom line to `return sum == 5`.
 
 Implicitly: * --> Boolean
@@ -429,9 +436,9 @@ Implicitly: * --> Boolean
     4. X ? .. : ..
     5. X || .. as well as X && ..
 
-- `\\` and `&&` act as "operand selectors" that return the underlying value of one of the operands, rather than
+- `||` and `&&` act as "operand selectors" that return the underlying value of one of the operands, rather than
 a boolean value.
-    - first they implicit coercion, then they return the appropriate value.
+    - first they use implicit coercion, then they return the appropriate value.
 - When you see these operators in, e.g., if statements, there is an additional implicit coercion step afterwards to a boolean value.
 */
 var a = 42;
@@ -481,7 +488,7 @@ var s2 = Symbol( 'not cool' );
 s2 + '';                        // TypeError
 
 /* LOOSE EQUALS VERSUS STRICT EQUALS
-== allows coercion in the equality comparison and === disallows coercion
+The rule is: == allows coercion in the equality comparison and === disallows coercion
 
 NOT: == checks values for equality and === checks values and types for equality
 
@@ -536,7 +543,7 @@ x == y;         // false
 - null and undefined are treated as indistinguishable for comparison purposes.
 - the `==` operator allows their mutual implicit coercion.
 - Falsy values are not treated as equal (see below).
-- So as long as you remember, and treat null and undefined as equal, this is a succint way to
+- So as long as you remember, and treat null and undefined as equal, this is a succinct way to
 test equality.
 */
 var a = null;
@@ -600,7 +607,7 @@ Number.prototype.valueOf = function(){
 };
 
 new Number( 2 ) == 3;       // true
-2 == 3;                     // false (doesn't invoke valueOf, since both are primitives)
+2 == 3;                     // false (doesn't invoke valueOf, since both are primitive values)
 
 var i = 2;
 
@@ -616,8 +623,8 @@ if (a == 2 && a == 3){
 
 /* Falsy Comparisons
 - Most common complaint agaisnt coercion are how falsy values behave when compared agaisnt each other.
-- Most of the following are predictable, but there are 7 false positives marked with "UH OH!"
-- By avoiding `== false`, as advised earlier, this 7 is reduced to 3.
+- Most of the following are predictable, but there are 7 false positives (marked with "UH OH!").
+- By avoiding `== false`, as advised earlier, these 7 are reduced to just 3.
 */
 '0' == null;            // false
 '0' == undefined;       // false
@@ -655,7 +662,7 @@ false == {};            // false
 
 0 == '\n';      // true
 /*
-- RHS coerced to a number, as usual. It is coerced to 0.
+- RHS coerced to a number, as usual. It is coerced to 0, so the comparison is true.
 
 Heuristics for safely using implicit coercion:
 - If either side of the comparison can have true/ false values, avoid ==.

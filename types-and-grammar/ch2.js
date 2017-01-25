@@ -7,11 +7,11 @@ https://github.com/getify/You-Dont-Know-JS/blob/master/types%20%26%20grammar/ch2
 ARRAYS
 
 - Arrays are just containers for any type of value.
-- You can store a mixture of different types in one array.
+- You can store a mixture of different types in the same array.
 - There's no need to presize arrays.
 - The length property will dynamically adjust.
 */
-var a =[ ];
+var a = [ ];
 
 a.length;       // 0
 
@@ -32,8 +32,8 @@ a[1];           // undefined
 a.length;       // 3
 
 /*
-- Arrays can can key/ property pairs since they are objects.
-- These do not add to the length of the array.
+- Arrays can can have key/ property pairs since arrays are objects.
+- However keys/ property pairs do not add to the length of the array.
 */
 var a = [ ];
 
@@ -96,17 +96,16 @@ b === d;    // false
 a;  // 'foo'
 b;  // ['f','o','o']
 
-// Strings are immutable, arrays are mutable:
+// One big difference is that strings are immutable, arrays are mutable:
 a[1] = 'l';
 b[1] = 'l';
 
 a;  // 'foo'
 b;  // ['f', 'l', 'o']
 
-/*
-- A consequence of strings' immutability is that string methods must creat and return new strings.
-- In contrast array methods can modify the actual arrays.
-*/
+// A consequence of strings' immutability is that string methods must creat and return new strings.
+// In contrast array methods can modify the actual arrays.
+
 var a = 'foo';
 var c = a.toUpperCase();    // `a` unchanged
 a === c;    // false
@@ -117,7 +116,7 @@ var b = ['f','o','o'];
 b.push( '!' );
 b;  // ['f','o','o','!']
 
-// Many array methods are not available for strings, but we can `borrow` the ones that ar nonmutating.
+// Many array methods are not available for strings, but we can `borrow` the ones that are non-mutating.
 a.join;     // undefined
 a.map;     // undefined
 
@@ -138,7 +137,8 @@ var c = a.split( '' ).reverse().join( '' );
 c;  // 'oof'
 /*
 - This doesn't work for strings with complex (unicode) characters
-- If doing a lot of 'borrowing', consider just using arrays of characters, and converting into strings when needed.
+- If doing a lot of 'borrowing' (i.e. having to call array methods on strings), consider just using
+arrays of characters, and converting into strings when needed.
 
 NUMBERS
 
@@ -200,6 +200,7 @@ a.toPrecision( 6 );     // '42.5900'
 
 // If using directly on the number, be careful as the `.` will be interpreted as part of the number:
 42.toFixed( 3 );        // SyntaxError
+
 // Okay:
 (42).toFixed( 3 );      // '42.000'
 0.42.toFixed( 3 );      // '0.420'
@@ -214,7 +215,7 @@ a.toPrecision( 6 );     // '42.5900'
 0363;   // octal for 243
 
 // New in ES6:
-0o363;  // octl for 243
+0o363;  // octal for 243
 0O363;  // ditto - but very confusing to have adjacent 0 and O - Avoid.
 
 0b11110011;     // binary for: 243
@@ -287,7 +288,7 @@ console.log( a );            // 42
 The not number, number
 - `NaN` is the result when you perform a mathematical operation without both operands being numbers.
 - `NaN` stands for "not a number", but this is very confusing. It should be thought of as a failed number.
-- The `typeof NaN` is, confusingly, number.
+- The `typeof NaN` is, confusingly, 'number'.
 */
 var a = 2 / 'foo';      // Nan
 typeof a === 'number';  // true
@@ -327,7 +328,7 @@ var a = 0 / -3;     // -0
 var b = 0 * -3;     // -0
 /*
 - If you stringify a negative 0, it will always be reported as '0'.
-- The reverse, going from a string representation of a negative 0 to a number, doesn't loose the negative.*/
+- The reverse, going from a string representation of a negative 0 to a number, doesn't lose the negative.*/
 a = 0 / -3;             // -0
 a.toString();           // '0'
 a + '';                 // '0'
@@ -370,11 +371,12 @@ Object.is( b, -0 );     // false
 - A reference in JS points at a shared value, so if you have 10 different references, they are always distinct
 references to the a single shared value.
 - There are no syntactic hints tht control value/ reference (e.g `&` and `*` in C).
-    - Instead the type of the value alone determines whetehr the value is assigned by value-copy or reference-copy.
-- Simple values (scalar primitives) are always passed/ assigned by value-copy:
-    null, undefined, string, number, boolean, symbol (ES6)
-- Compount values create a copy of the reference:
-    - objects (including arrays and all boxed obejct wrappers) and functions.
+- Instead the type of the value alone determines whetehr the value is assigned by value-copy or reference-copy.
+    - Simple values (scalar primitives) are always passed/ assigned by value-copy:
+        null, undefined, string, number, boolean, symbol (ES6)
+
+    - Compount values create a copy of the reference:
+        - objects (including arrays and all boxed object wrappers) and functions.
 */
 var a = 2;
 var b = a;      // since `a` is a number, `b` is always a copy of the value in `a`
@@ -383,7 +385,7 @@ a;      // 2
 b;      // 3
 
 var c = [1,2,3];
-var d = c;          // `d` is a reference to the shared `[1,2,3]` value, since the vlue is an array (object)
+var d = c;          // `d` is a reference to the shared `[1,2,3]` value, since the value is an array (object)
 d.push( 4 );
 c;      // [1,2,3,4]
 d;      // [1,2,3,4]
@@ -393,7 +395,7 @@ shallow copy of it.
 */
 foo( a.slice() );   // copy of array a
 
-// To do the reverse - pass a scalar primitive by "reference", use a wrapper object;
+// To do the reverse - pass a scalar primitive by "reference", use a wrapper object:
 function foo(wrapper){
     wrapper.a = 42;
 }
