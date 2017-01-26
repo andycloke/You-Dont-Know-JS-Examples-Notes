@@ -7,7 +7,7 @@ https://github.com/getify/You-Dont-Know-JS/blob/master/async%20%26%20performance
 A PROGRAM IN CHUNKS
 
 - Programs are executed in chunks, where each chunk is often a function.
-- Ajax requests don't complete synchronously, so in the below data won't have the ajax results.
+- Ajax requests don't complete synchronously, so in the below `data` won't have the ajax results.
 */
 var data = ajax( 'http://some.url.1');
 
@@ -15,22 +15,22 @@ console.log( data );
 // Oops! No data
 
 // We often solve this with callback functions:
-var data = ajax( 'http://some.url.1', function myCallbackFunc(data){
+var data = ajax( 'http://some.url.1', function myCallback(data){
 
     console.log( data );        // Now we get the data
 
 } );
 
 /* Async Console
-- Occasionally browsers will make console.* methods, e.g. console.log, asynchronous.
+- Occasionally browsers will make console's methods, e.g. console.log, asynchronous.
 - This means you might have issues where objects are modified after a console.log(..) and yet you
 unexpectedly see the modified object.
 
 EVENT LOOP
 - JS doesn't have async baked into the language. (actually it does now in ES6)
-- Instead it is in every JS enginer, and called the event loop.
+- Instead it is in every JS engine, and called the event loop.
 
-Can be conceptualised as an array that acts as a queue (first in first out)*/
+Can be conceptualised as an array that acts as a queue (first in, first out)*/
 var eventLoop = [ ];
 var event;
 
@@ -53,7 +53,7 @@ while (true){
 /*
 - `setTimeout(..)` doesn't put your callback on the event loop.
 - It sets up a timer.
-- When the timer expires the environment (e.g. browser) places your callback into the event loop. Such that
+- When the timer expires, the environment (e.g. browser) places your callback into the event loop, such that
  a future tick will pick it up and execute it.
 - If there are already 20 items in the queue they will execute first.
 
@@ -65,7 +65,7 @@ PARALLEL THREADING
 - Async: now and later
 - Parallel: simultaneously
 
-- In parallel computing processes and threads execute independently and maybe simultaneously.
+- In parallel computing, processes and threads execute independently and maybe simultaneously.
     - Multiple threads can share the memory of a single process.
 
 - An event loop, by contrast, breaks the work down into tasks and executes them in serial, desallowing parallel
@@ -78,7 +78,7 @@ function later(){
 - There are many threads in this function, e.g. for `answer = answer * 2;` we first load the current value of `answer`,
 then put 2 somewhere, etc.
 - If these executed in parallel we'd get very unpredictable results.
-- Luckily JS in single-threaded.
+- Luckily JS is single-threaded.
 */
 var a = 20;
 
@@ -93,13 +93,13 @@ function bar(){
 ajax( 'http://some.url.1', foo );
 ajax( 'http://some.url.2', bar );
 /*
-- The order of foo and bar being executing after the ajax requests makes a difference to the final value of a.
-- However its quite predictable WHAT a will be in either case.
+- The order of foo and bar being executing after the ajax requests makes a difference to the final value of `a`.
+- However it is predictable what the final value of `a` will be in either case.
     - foo before bar, a = 42.
     - bar before foo, a = 41.
 
 - If JS events sharing the same data executed in parallel, the results/ problems would be much more subtle.
-    - i.e. results would be non-deterministic, which is a usually bad idea.
+    - i.e. results would be non-deterministic, which is usually a bad idea.
 
 Run-to-Completion
 
@@ -238,7 +238,7 @@ ajax( 'http://some.url.1', response );
 ajax( 'http://some.url.2', response );
 
 // The order of data in res will depend on which ajax response finished first - there is a "race" to finish.
-// Solve these race conditions be coordinating:
+// Solve these race conditions by coordinating:
 
 var res = []
 
@@ -327,7 +327,7 @@ ajax( 'http://some.url.2', bar );
 var a;
 
 function foo(x) {
-    if (!a){
+    if (!a){            // remember that undefined is falsy
         a = x * 2;
         baz();
     }
@@ -351,7 +351,7 @@ ajax( 'http://some.url.2', bar );
 
 var res = [];
 
-// 'response()' receives array of results form the ajax call
+// 'response()' receives an array of results form the ajax call
 function response(data) {
     // add onto existing `res` array
     res = res.concat(
@@ -365,7 +365,7 @@ function response(data) {
 ajax( 'http://some.url.1', response );
 ajax( 'http://some.url.2', response );
 /*
-- Whichever ajax call gets its response bck first will process all the data all at once.
+- Whichever ajax call gets its response back first will process all the data all at once.
 - No other processes can run whilst this happens (e.g UI interactions).
 - If there were millions of records, this would be a serious issue.
 

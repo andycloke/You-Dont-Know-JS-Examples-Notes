@@ -3,6 +3,7 @@ Notes and example code from ch2 of the Asnyc & Performance book in the YDKJS ser
 https://github.com/getify/You-Dont-Know-JS/blob/master/async%20%26%20performance/ch2.md
 
 --------------------------------------------------------------------------------
+
 - Previously we imagined the inside of a function happening in a predictable order.
 - However when we consider async funciton invocations, events can happen in a variety of orders.
 - In these cases the function serves as the target for the event loop to 'call back into' the program.
