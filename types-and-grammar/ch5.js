@@ -1,12 +1,12 @@
 /* Chapter 5: Grammar
-Notes and example code from ch1 of the Types & Grammar book in the YDKJS series
+Notes and example code from ch5 of the Types & Grammar book in the YDKJS series
 https://github.com/getify/You-Dont-Know-JS/blob/master/types%20%26%20grammar/ch5.md
 
 --------------------------------------------------------------------------------
 
 STATEMENTS & EXPRESSIONS
 
-- In English, one sentence is composed of one/ many phrases, connected by punctuation marks or conjunctions (and/ or)
+- In English, one sentence is composed of one/ many phrases, which are connected by punctuation marks or conjunctions (and/ or)
     - One phrase can itself include multiple smaller phrases.
 - In JS:
     - statements are sentences.
@@ -26,21 +26,21 @@ b;
 - a = 3 * 6 & b = a are assignment expressions.
 
 Statement Completion Values
-- All statements have completion values, which is displayed in the console for the last statement executed.
+- Every statement has a completion value, which is displayed in the console for the last statement executed.
 - This value can be `undefined`, and is for assignment expressions such as var b = a;
 
 - Any regular {..} block has a completion value of the completion value of its last contained statement/ expression.
 */
 var b;
 
-if (true){
+if (true) {
     b = 4 + 38;
 }
 // this displays 42 in Chrome's developer console.
 
 var a, b;
 
-a = if(true){
+a = if (true) {
     b = 4 + 38;
 };
 /* this doesn't work, so what can we do?
@@ -48,8 +48,9 @@ a = if(true){
 - Wait for the possible introduction of do blocks in ES7.
 
 Expression Side Effects
-- Both of these cause side effects (changing a).
-- The order depends on whether then increment operator ++ is a prefix or a suffix.
+- Both of these cause side effects (incrementing a by 1).
+- The order of the increment and assignment operations depends on whether the
+increment operator ++ is a prefix or a suffix.
 */
 var a = 42;
 var b = a++;
@@ -63,16 +64,17 @@ var b = ++a;
 a;      // 43
 b;      // 43
 
-/*
-- The , statement-series comma operator allows you to string together multiple standalone expressions.
-*/
+
+// The `,` statement-series comma operator allows you to string together multiple standalone expressions.
+
 var a = 42, b;
-b = ( a++, a );     // the second a statement expression gets evaluated after the side effects of the a++ expression, so assigns 43 to b
+b = ( a++, a );     // the second `a` statement expression gets evaluated after the side effects of the `a++` expression, so assigns 43 to `b.`
 
 a;      // 43
 b;      // 43
 
-// `delete` returns true if the object has a configurable property with the correct name. It has the (useful) side effect of deleting an object property.
+// `delete` returns true if the object has a configurable property with the correct name, or false if it does not.
+// `delete` has the useful side effect of deleting an object property.
 var obj = {
     a: 42
 };
@@ -90,10 +92,10 @@ a;          // 42
 var a, b, c;
 a = b = c = 42;
 
-// don't do this (without declaring b somewhere) - will create a global b/ throw an error in strict mode
+// don't do the below (without first declaring b somewhere) - it will create a global b or throw an error if done in strict mode
 var a = b = 42;
 
-// similarly:
+// similarly (making use of assigning and coercing to boolean):
 function vowels(str){
     var matches;
 
@@ -123,7 +125,7 @@ vowels( 'Hello World');     // ['e','o','o']
 /* Contextual Rules
 - Sometimes the same syntax means different things.
 
-Curly braces
+Curly braces - {} - have two (three in ES6) seperate uses, which are distinguishable from context
 
 Object literals
 - The first use of curly braces {} is as an object literal.*/
@@ -140,8 +142,8 @@ var a = {
     foo: bar()
 }
 /*
-- NOT a standalone object literal that doesn't get assigned.
-- A regular code block. Can be useful when combined with `let` (ES6) block scoping.
+- This is  NOT a standalone object literal that doesn't get assigned.
+- Instead it is a regular code block. Can be useful when combined with `let` (ES6) block scoping.
 - in the form above `foo` is a label for statement `bar()`, which can used with labeled jumps (a limited
 form of goto).
 - These are uncommon and best avoided, so won't bother going over.
@@ -157,11 +159,11 @@ Blocks
     3. {} coerced into a string value as well.
 - 2nd result:
     1. {} interpreted as a standalone {} empty block (which does nothing).
-        - Blocks don't need semicolons to terminate them, so lack of one here is not problemt.
+    Blocks don't need semicolons to terminate them, so the lack of one here is not problemt.
     2. `+ []` explicitly coerces the `[]` to a number, which is the 0 value.
 
 Object Destructuring
-- You'll also see {} in (ES6) object destructuring.
+- You'll also see {} in (ES6) object destructuring:
 */
 var data = {
     a: 42,
@@ -171,16 +173,17 @@ var data = {
 var { a, b } = data;
 console.log( a, b );    // 42 'foo'
 
-/* else if and optional blocks
+/* `else if` and optional blocks
 
 - There isn't actually an `else if` clause in JS.
-- However both `if` & `else` can ommit the {} if they are followed by a single block.
+- However both `if` & `else` can ommit the {} if they are followed by a single statement.
 - Therefore when you do `else if` you're just choosing to ommit the curly braces (and relying on the fact that
 the `if{..} else{..}` statement afterwards is just one statement).
 
 OPERATOR PRECEDENCE
 - `,` the statement-series operator has the lowest precedence, so you will often need to use () with it.
-- && has a higher precedenc than = . */
+- && has a higher precedenc than =
+*/
 var a = 42;
 var b = 'foo';
 var c = false;
@@ -236,11 +239,14 @@ a && b && c
     (but that also happens to be left to right in the case of && and ||)
 
 - Doesn't make a whole lot of difference for && and ||, but for other operators it does.
-- e.g. ? : is right-associative.*/
+
+- e.g. ` ? : ` is right-associative.
+*/
 a ? b : c ? d : e
 
 // is equivalent to:
 a ? b : (c ? d : e)
+
 // not:
 (a ? b : c) ? d : e
 
@@ -273,18 +279,18 @@ var d = a && b || c ? c || b ? a : c && b : a;      // 42, but why?
 a
 /*
 1. (a && b) is 'foo'.
-2. 'foo' || c s 'foo'.
+2. 'foo' || c is 'foo'.
 3. For the first ? test, 'foo' is truthy.
 4. (c || b) is 'foo'.
-5. For the second ? test, 'foo' is truhty.
+5. For the second ? test, 'foo' is truthy.
 6. a is 42.
 
 AUTOMATIC SEMICOLONS
 
 - Automaatic semicolon insertion (ASI) is when JS automatically assumes a ; in certain places of
-your program even if you didn't want one there.
+your program even if you didn't put one there.
 - Only occurs in the presence of a newline.
-- When the JS parser parse a line where it would expect a ; and there isn't one.
+- When the JS parser parse a line where it would expect a ; and there isn't one there:
     - if there is only whitespace/ comments up until the next newline it inserts a ;
 */
 var a = 42, b       // ASI here
@@ -310,7 +316,7 @@ function foo(a){
 
 // ERRORS
 
-// Certain early errors - syntanical error that are caught during compilation.
+// 'early errors '- syntanical error that are caught during compilation:
 
 // Invalid regex:
 var a = /+foo/;     // Error!
@@ -319,15 +325,16 @@ var a = /+foo/;     // Error!
 var a;
 42 = a;             // Error!
 
-/* Using Variables Too Soon
+// Using Variables Too Soon
 
-- ES6 defines a "Temporal Dead Zone" (TDZ), where variable references cannot yet be made.
-- Strangely typeof has an exception for undeclared variables, but not TDZ references.
-*/
+// ES6 defines a "Temporal Dead Zone" (TDZ), where variable references cannot yet be made.
+
 {
     a = 2;      // ReferenceError!
     let a;
 }
+
+// Strangely typeof has an exception for undeclared variables, but not TDZ references:
 {
     typeof a;   // undefined
     typeof b;   // ReferenceError! (TDZ)
@@ -351,7 +358,7 @@ foo();
 // 42
 // this always runs
 
-// `switch`
+// `switch` - use in place of lots of `if else` statements
 
 switch (a){
     case 2:
@@ -372,13 +379,13 @@ switch (true){
     case a == 2:
         // do something
         break;
-    case a == 42:           // '42' == 42 evaluates to true. THEN: true === true.
+    case a == 42:           // '42' == 42 evaluates to true. THEN: true === true. NOT doing '42 == true' of anything like that.
         // do another thing
         break;
     default:
         // fallback to here
 }
-// be careful - needs to evaluate to `true`, not a truthy value
+// be careful - thic hack needs to evaluate to `true`, not a truthy value
 var a = 'hello world';
 var b = 10;
 
@@ -393,6 +400,7 @@ switch (true){
 
 /*
 - Fix is to use `!!(a || b == 10)`.
+
 - In the below code, it goes through each option with no matches, so goes to default.
 - The default has no break, so proceeds to following statement, prints out 3.
 - Hits the break so quits.
@@ -402,9 +410,13 @@ switch (a) {
     case 1:
     case 2:
         // never gets here
+    default:
+        console.log( 'default' );
     case 3:
         console.log( '3' );
         break;
     case 4:
         console.log( '4' );
 }
+// default
+// 3
