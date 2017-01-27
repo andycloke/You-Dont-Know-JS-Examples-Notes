@@ -1,4 +1,4 @@
-/* Chapter 3: Promises
+/* Chapter 3: Promises (part 1)
 Notes and example code from ch3 of the Asnyc & Performance book in the YDKJS series
 https://github.com/getify/You-Dont-Know-JS/blob/master/async%20%26%20performance/ch3.md
 
@@ -345,3 +345,93 @@ p.then( function(v){
 .then( function(v){
     console.log( v );       // 42
 } );
+
+// We can generalise thise with a `delay` function.
+// N.B. the 'next Job' for a promise that is resolved 'immediately'
+
+function delay(time) {
+    return new Promise( function(resolve,reject){
+        setTimeout( resolve, time );
+    } );
+}
+
+delay( 100 )    // step 1
+.then( function STEP2(){
+    console.log( 'step 2 (after 100ms)' );
+    return delay( 200 );
+} )
+.then( function STEP3(){
+    console.log( 'step 3 (fter another 200ms)' );
+} )
+.then( function STEP4(){
+    console.log( 'step 4 (next Job)' );
+    return delay( 50 );
+} )
+.then( function STEP5(){
+    console.log( 'step 5 (after another 50ms)' );
+} )
+
+// let's do something more useful - ajax:
+// `ajax(..)` would typically be provided by some library
+// assume we have an `ajax( {url}, [callback] )` utility function
+
+// Promise-aware ajax
+function request(url) {
+    return new Promise( function(resolve,reject){
+        // the `ajax(..)` callback should be our
+        // promise's `resolve(..)` function
+        ajax( url, resolve );
+    } );
+}
+
+request( 'http://some.url.1/')
+.then( function(response1){
+    return request( 'http;//some.url.2/?v=' + response1 ):
+} )
+.then( function(response2){
+    console.log( response2 );
+} );
+
+// errors/ exceptions are on a per promise basis:
+
+// step 1:
+request( 'http://some.url.1/')
+
+// step 2:
+.then( function(response1){
+    foo.bar();      // undefined, error!
+
+    // never gets here
+    return request( 'http;//some.url.2/?v=' + response1 ):
+} )
+
+// step 3
+.then(
+    function fulfilled(response2){
+        // never gets here
+    },
+    // rejection handler to catch the error
+    function rejected(err){
+        console.log( err );
+        // `TypeError` from `foo.bar()` error
+        return 42;
+    }
+)
+.then( function(msg){
+    console.log( msg );     // 42
+} );
+/*
+- The rejection handler returns a value (42), which fulfills the promise for the next step
+and allows the chain to continue in a fulfillment state.
+- If the rejection handler returned a promise, it would have to be unwrapped, which could delay the next step.
+- A thrown error in a fufillmint/ rejection handler causes the next (chained) promise to be rejected
+immediately with that error/ exception.
+
+- If you call then(..) on a promise and you only pass a fulfillment handler (i.e no rejection handler),
+JS will assume a default rejection handler.
+- This will simply throw the err, and this err will propagate down the chain until an explicit defined rejection
+handler is encountered.
+
+- If you do not pass in a fulfillment handler, a default one (which simply passes the value
+on to the next Promise) is assumed.
+*/
