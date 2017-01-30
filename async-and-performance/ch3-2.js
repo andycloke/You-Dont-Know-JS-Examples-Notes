@@ -393,4 +393,7 @@ Promise Uncancellable
  a Promise can mess things up for another consumer relying on that Promise - leads us back down the callback
  rabbit hole
 
- - Promises are also slower than callbacks (think of all the trusts issues they have to avoid/ solve). 
+Performance
+- Promises are also slower than callbacks (think of all the trusts issues they have to avoid/ solve).
+    - We're not sure how much slower.
+- A bigger issue - you can't pick and choose which issues you want to solve - they do them all, all the time.
