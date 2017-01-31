@@ -4,10 +4,10 @@ https://github.com/getify/You-Dont-Know-JS/blob/master/async%20%26%20performance
 
 --------------------------------------------------------------------------------
 
-- Previously we imagined the inside of a function happening in a predictable order.
+- Previously we imagined the inside of a function happening in a predictable, sequential order.
 - However when we consider async funciton invocations, events can happen in a variety of orders.
 - In these cases the function serves as the target for the event loop to 'call back into' the program.
-    - The function is a 'callback function'.*/
+    - The function is therefore known as a 'callback function'.*/
 
 // Continuations
 
@@ -27,7 +27,8 @@ Sequential Brain
 - The best we can do is rapidly switch, giving the illusion of that we are doing them both simultaneously.
 - Very similar to JS's async evented concurrency.
 - Imagine you are typing - every letter is like an event on the event queue - lots of opportunity to, e,g, talk
-to someone on the phone.
+to someone on the phone 'at the same time', since you'd acutally be switching very rapidly between talking
+and typing.
 
 Doing Versus Planning
 - When we plan we generally make a sequential list (i.e. a todo list with 'do this', 'then do that' etc).
@@ -51,7 +52,7 @@ ajax( function(){
 }, 1000 );
 // B
 
-/* - ajax, some third party function for ajax requests, is handled by some third party library.
+/* - ajax, some function for ajax requests, is handled by some third party library.
 - We are losing control of one part of out program's execution - 'inversion of control'.
 - There's an unspoken trust/expectation the library will be maintained.
 - When you have a utility you don't have 100% faith in, you have to write a lot of code to handle every possible
@@ -68,8 +69,8 @@ function success(data) {
 function failure(err) {
     console.log( err );
 }
-ajax( 'http://some.url.1', sucess, failure );
-// however failure callback often optional, in which case errors are silently swallowed - bad.
+ajax( 'http://some.url.1', success, failure );
+// however the failure callback is often optional, in which case errors are silently swallowed - bad.
 // error-first stye (Node style);
 function response(err,data{
     // error?
@@ -83,9 +84,10 @@ function response(err,data{
 }
 ajax( 'http://some.url.1', response );
 
-/* (Trust) Issues not handled by this:
+/* There are some (Trust) Issues which are still not handled by this approach:
 - Nothing to handle multiple callback invokations.
 - Nothing to handle getting both and error and success.
+
 - Although pretty standard, boring to have to type this out every time you hve a callback.
 
 - What if callback never called? use something like:            */
@@ -116,10 +118,10 @@ function foo(err,data{
 }
 ajax( 'http://some.url.1', timeoutify( foo, 500 ) );
 /*
-- Another trust issue when the utlity might either call the callback now (sync) OR later (async), but
+- Another trust issue when the utility might either call the callback now (sync) OR later (async), but
 we're not sure which.
 - Sometime people say 'Don't release Zalgo' to mean 'always call callbacks asynchronously' (even if it means
-putting the call on the event loop immediately). E.G.:
+putting the call on the event loop immediately). e.g.:
 */
 function result(data) {
     console.log( a );
