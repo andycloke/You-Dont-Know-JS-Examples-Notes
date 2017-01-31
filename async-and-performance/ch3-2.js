@@ -4,7 +4,7 @@ https://github.com/getify/You-Dont-Know-JS/blob/master/async%20%26%20performance
 
 --------------------------------------------------------------------------------
 
-- Terminology: Resolve, Fulfill and reject. */
+- Terminology: Resolve, Fulfill and Reject. */
 var p = new Promise( function(resolve,reject){
     // resolve() for fulfillment
     // reject() for rejection
@@ -26,12 +26,12 @@ because it uses `Promise.resolve(..)` to create a Promise that's resolved to the
     - For this reason `resolve` makes more sense than `fulfill`
 
 - In`then(..)` we know that the first parameter will unambiguously be the fulfillment case, so there
-is no need for the duality of `resolve` and we can call it `onFulfilled` & `onRejected` (used in ES6 spec),
- or we could opt for `fulfilled` and `rejected`.
+is no need for the duality of `resolve` and we can call it `onFulfilled()` & `onRejected()` (used in ES6 spec),
+ or we could opt for `fulfilled()` and `rejected()`.
 
 Error Handling
 
-- `try...catch` is synchronous only so no use to us in this form:
+- `try...catch` is synchronous only so is no use to us in this form:
 */
 function foo(){
     setTimeout( function(){
@@ -55,7 +55,7 @@ function foo(cb) {
             cb( null, x );      // success!
         }
         catch (err) {
-            cd( err );
+            cb( err );
         }
     }, 100 );
 }
@@ -87,7 +87,7 @@ p.then(
     }
 );
 
-// there are issues however. In this snippet, the error handler is for the p promise, which has
+// there are issues however. In this snippet, the error handler is for the `p` Promise, which has
 // been fulfilled. The only way to be notified of the error would be in the error handler of the
 // next `then(..)` in the chain, but we don't provide another `then(..)`, so the error never surfaces.
 
@@ -95,7 +95,7 @@ var p = Promise.resolve( 42 );
 
 p.then(
     function fulfilled(msg){
-        // numbers don't have string functions, so will throw an error
+        // numbers don't have string functions, so this will throw an error
         console.log( msg.toLowerCase() );
     },
     function rejected(err){
@@ -104,8 +104,8 @@ p.then(
 );
 /*
 - Various approaches to error handling
-- Browsers provide some capabilities - when an Promise object gets thrown away, and if they have  rejection in them
-when they are thrown away they will report an error.
+- Browsers provide some capabilities - when an Promise object gets thrown away, and if they have a rejection in them
+when they are thrown away, the browser will report an error.
 - Libraries can add a `.done(..)` to the end of our promise chains which will ctch errors, or display an error to the
 console if there is an error in `done(..)` itself. - but this is not part of the spec.
 - Author (KS) suggests adding automatic default error handling to Promises, which you have to opt-out if you don't want.
@@ -116,16 +116,15 @@ PROMISE PATTERNS
 
 - In an async sequence (Promise chain), only one async is occuring at any one time.
 
-- What is we two or more to occur concurrently ('in paraller')?
+- What if we want two or more to occur concurrently ('in parallel')?
 - In classic programming terminology, we use a 'gate' - which waits on two or more tasks completing before
 continuing.
-- In the Promise API we use `all([ .. ])`
+- In the Promise API we use `all([ .. ])`, which achieves the same thing.
 
-- Imagine we wwant to wait for two ajax requests to complete before making a third:
+- Imagine we want to wait for two ajax requests to complete before making a third:
 */
 
-//`request(..)` is a Promise-aware Ajax utility,
-// like we defined earlier in this chapter
+//`request(..)` is a Promise-aware Ajax utility, like we defined earlier in this chapter
 
 var p1 = request( 'http://some.url.1/' );
 var p2 = request( 'http://some.url.2/' );
@@ -140,21 +139,23 @@ Promise.all( [p1,p2] )
 .then( function(msg){
     console.log( msg );
 } );
+
 /*
 - `Promise.all([..])` expects a single argument, an array, consisting generally of Promise instances.
-    - Can also accept thenables/ immediate values, which it will call `Promise.resolve(..)` on to turn into a Promise.
+    - Can also accept thenables/ immediate values, which it will call `Promise.resolve(..)` on in order
+    to turn into a Promise.
 - It will return an array of all the fullfillment messages of the passed in Promises, in the same order
 as the the input (paramter) Promises.
 
-- Remember to always attach an error handler, even the one that comes back from `Promise.all([..])`.
+- Remember to always attach an error handler to Promises, even the one that comes back from `Promise.all([..])`.
 
 `Promise.race([..])`
 
 - `Promise.race([..])` reponds to the first Promise to complete.
-- In traditional terminology this woul be called a latch.
-- Don't confuse this with "race conditions", which usually refer to bugs.
-- `Promise.race([..])` accepts an arrays of Promises (or thenables/ immediate values) like `Promise.all([..])`
-- be careful - if passed an empty array, Promise will never resolve.
+- In traditional terminology this would be called a latch.
+- Don't confuse this with 'race conditions', which usually refers to bugs in a program.
+- `Promise.race([..])` accepts an array of Promises (or thenables/ immediate values) like `Promise.all([..])`
+- be careful - if passed an empty array, `Promise.race([..])` will never resolve.
 */
 var p1 = request( 'http://some.url.1/' );
 var p2 = request( 'http://some.url.2/' );
@@ -197,7 +198,7 @@ Promise.race( [
 
 `new Promise(..)` Constructor
 
-- The `Promise(..)` constructor must be used with `new`.
+- The `Promise(..)` constructor must be used with the `new` keyword.
 - It must be provided a function callback, which is synchronously called.
     - This function is passed two function callbacks, which act as resolution
     capabilities for the promise.
@@ -206,7 +207,7 @@ Promise.race( [
             - If it is passed a non-Promise, non-thenable value, the promise if fulfilled with that value.
             - If it is passed a Promise/ thenable value, then that value is unwrapped recursively, and
             whatever its final resolution/ state is will be adopted by the promise.
-    - `reject(..)` simply rejects the value*/
+    - `reject(..)` simply rejects the value.            */
 var p = new Promise( function(resolve,reject){
     // `resolve(..)` to resolve/ fulfill the promise
     // `reject(..)` to reject the promise
@@ -221,9 +222,10 @@ var p1 = new Promise( function(resolve,reject){
 } );
 
 var p2 = Promise.reject( 'Oops' );
+
 // `Promise.resolve(..)` usually creates an already-fulfilled Promise in the same way
-// as `Promise.reject(..)` above, but if passed a thenable value it will unwrap it tot he final
-// value, and wraps that as a Promise
+// as `Promise.reject(..)` above, but if passed a thenable value it will unwrap it to the final
+// value, and wraps that as a Promise:
 var fulfilledTh = {
     then: function(cb) { cb( 42 ); }
 };
@@ -242,14 +244,14 @@ var p2 = Promise.resolve( rejectedTh );
 
 /* `then(..)` & `catch(..)`
 
-- Every Promise instance hasa `then(..)` and `catch(..)` methods, which allow registering
+- Every Promise instance has the `then(..)` and `catch(..)` methods, which allow registering
 of fulfillment and rejection handlers for the Promise
 - `then(..)` takes two parameters:
     1. the fullfillment callback
     2. the rejection callback
 - `catch(..)` takes one paremeter:
     1. the rejection callback
-- `catch(..)` is therfore equivalent to `then( null, ..)`
+- `catch(..)` is therefore equivalent to `then( null, ..)`
 - both `then(..)` and `catch(..)` create and return a new Promise, which can be to used to
 express Promise chain flow control
 
@@ -258,13 +260,13 @@ express Promise chain flow control
 - Both of these create and return a Promise which is dependent on the input array of Promises
 passed into them as a parameter.
 
-- For `Promise.all([..])` all the promises you pass in must fulfill for the Promise to fulfill.
-- If any Promise is rejected, the reutn Promise if rejected, too.
+- For `Promise.all([..])` all the Promises you pass in must fulfill for the Promise to fulfill.
+- If any Promise is rejected, the return Promise is rejected, too.
 - When fulfilled, the return Promise is an array of all the Promises' return values.
 - In classic terminology this is called a gate.
 
-- For `Promise.race([..])` only the first Promise to resolve and its resolution value is the resolution
-value of the return Promise.
+- For `Promise.race([..])` only the first Promise to resolve is handled and its resolution value is
+the resolution value of the return Promise from `Promise.race([..])`.
 - In classic terminology this is called a latch.
 */
 var p1 = Promise.resolve( 42 );
@@ -290,8 +292,8 @@ Promise.all( [p1,p2] )
 
 Sequence Error Handling
 
-- Errors are propagated until they hit an error handler, rather than brought
- to our attention immediately.
+- Errors are propagated until they hit an error handler, rather than brought  to our attention immediately.
+
  - We can rely on this and simply use an error handler at the end of the chain, but we then must rely
  on no steps of the chain handling errors (which might be hard to ensure if this is hidden/ abstracted away).
 
@@ -386,7 +388,7 @@ the promise would already have been resolved, so the second `resolve(..)` call w
  Inertia
  - If you already have lots of callback based code, it is more difficult/ less attractive to start implementing Promises.
 
-Promise Uncancellable
+Promises Uncancellable
 - Once you create a Promise and register a fulfillment/ rejection handler, there's nothing you can
  do to make that task moot.
  - Some libraries do provide this functionality, but this is a bad idea, since it means one consumer of
