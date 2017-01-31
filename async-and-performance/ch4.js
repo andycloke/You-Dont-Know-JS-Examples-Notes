@@ -488,3 +488,141 @@ p.then(
         it.throw( err );
     }
 );
+
+/* Promise-Aware Generator Runner
+- we should use a library/ helper function to run Promise-yielding generators in the manner we've looked at.
+
+Promise Concurrency
+This code is non-optimal, since the second `request` must wait for the first one to complete before it
+can be sent:    */
+
+function *foo() {
+    var r1 = yield request( 'http://some.url.1' );
+    var r2 = yield request( 'http://some.url.2' );
+
+    var r3= yield request( 'http://some.url.3/?v=' + r1 + ',' + r2);
+
+    console.log( r3 );
+}
+
+// using run from library
+run( foo )
+
+// optimal approaches:
+// 1. requests are made in  parallel:
+function *foo() {
+    // make both requests in parallel
+    var p1 = request( 'http://some.url.1' );
+    var p2 = request( 'http://some.url.2' );
+
+    // wait until both promises resolve
+    var r1 = yield p1;
+    var r2 = yield p2;
+
+    var r3 = yield request( 'http://some.url.3/?v=' + r1 + ',' + r2);
+
+    console.log( r3 );
+}
+// 2. use the `Promise.all([..])` utility
+function *foo() {
+    // make both requests in parallel and wait until both Promises resolve.
+    var results = yield Promise.al( [
+        request( 'http://some.url.1' );
+        request( 'http://some.url.2' );
+    ] );
+
+    var r1 = results[0];
+    var r2 = results[1];
+
+    var r3 = yield request( 'http://some.url.3/?v=' + r1 + ',' + r2);
+
+    console.log( r3 );
+}
+
+/* Promises, Hidden
+
+- Note that we should 'hide' the Promise sync logic in other functions, then produce simple,
+sync-looking code in our generators.
+
+Generator Delegation
+- we can use `yield`-delegation to transfer an iterator instance from one generator to another.   */
+
+function *foo() {
+    console.log( '`*foo()` starting' );
+    yield 3;
+    yield 4;
+    console.log( '`*foo()` finished' );
+}
+
+function *bar() {
+    yield 1;
+    yield 2;
+    yield *foo();   // 'yield'-delegation!  // n.b. - more common syntax is `yield* foo()`
+    yield 5;
+}
+
+var it = bar();
+
+it.next().value;    // 1
+it.next().value;    // 2
+it.next().value;    // `*foo()` starting    // `yield`-delegation occurs
+                    // 3
+it.next().value;    //4
+it.next().value;    // '*foo()' finished
+                    // 5
+// now if we want to make 3 ajax sequential ajaz requests we canuse `yield`-delegation as so:
+function *foo() {
+    var r2 = yield request( 'http://some.url.2' );
+    var r3 = yield request( 'http://some.url.3/?v=' + r2 );
+
+    return r3;
+}
+
+function *bar() {
+    var r3 = yield request( 'http://some.url.1' );
+
+    // delegating to `*foo()` via yield `yield*`
+    var r3  = yield *foo();
+
+    console.log( r3 );
+}
+// `run` helper function from library runs generator to completion
+run( bar );
+
+/*
+- Delegation should be used for code organisation in the way you usually use functions.
+
+- Delegation can also  be directied to a non-generator, general iterable:       */
+function *bar() {
+    console.log( 'inside `*bar()`: ', yield 'A' );
+
+    // `yield`-delegation to a non-generator!
+    console.log( 'inside `*bar()`: ', yield *[ 'B', 'C', 'D' ] );
+
+    console.log( 'inside `*bar()`: ', yield 'E' );
+
+    return 'F';
+}
+
+var it = bar();
+
+console.log( 'outside: ', it.next().value );
+// outside: A
+
+console.log( 'outside: ', it.next( 1 ).value );
+// inside `bar()`: 1
+// outside: A
+
+console.log( 'outside: ', it.next( 2 ).value );
+// outside: C
+
+console.log( 'outside: ', it.next( 3 ).value );
+// outside: D
+
+console.log( 'outside: ', it.next( 4 ).value );
+// inside `bar()`: undefined
+// outside: E
+
+console.log( 'outside: ', it.next( 5 ).value );
+// inside `bar()`: 5
+// outside: F
