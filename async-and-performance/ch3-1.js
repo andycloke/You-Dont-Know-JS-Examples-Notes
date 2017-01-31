@@ -4,8 +4,8 @@ https://github.com/getify/You-Dont-Know-JS/blob/master/async%20%26%20performance
 
 --------------------------------------------------------------------------------
 
-- We previsouly said 'please execute this callback when your done' and then crossed our fingers
- that the callback is invoked correctly (e.g. not 17 times).
+- We previsouly said 'please execute this callback when you're done' and then crossed our fingers
+ that the callback would be invoked correctly (e.g. not 17 times).
 - Promises allow us to accept something from the third party library that says 'I'm done now'.
     - We're then free to handle that how we like.
 
@@ -15,12 +15,13 @@ as opposed to a strict synchronous 'now'.
 What is a Promise?
 
 Future Value
-- When you order a cheeseburger at McDonalds, your reciept represents your future-cheeseburger.
+- When you order a cheeseburger at McDonalds, your receipt represents your future-cheeseburger.
     - Like a promise of a cheeseburger.
 When your number/ order is called, you exchange the receipt - the future value is ready.
 
 Value Now and Later
-    - In the snippet below, console.log() assumes both x and y are already set.*/
+    - In the snippet below, console.log() assumes both x and y are already set. x is not,
+    so an error is thrown.              */
 var x, y = 2;
 
 console.log( x + y );       // NaN <-- because `x` isn't set yet
@@ -32,7 +33,7 @@ function add(getX,getY,cb){
         x = xVal;
         // both are ready?
         if (y != undefined) {
-            cd( x + y );        // send along sum
+            cb( x + y );        // send along sum
         }
     } );
 
@@ -40,7 +41,7 @@ function add(getX,getY,cb){
         y = yVal;
         // both are ready?
         if (x != undefined) {
-            cd( x + y );        // send along sum
+            cb( x + y );        // send along sum
         }
     } );
 
@@ -58,15 +59,15 @@ add( fetchX, fetchY, function(sum){
 
 Completion Event
 
-- An individual promise behaves as  future value.
-- We can also think of a Promise as a flow-control mechanism - a temporl this-then-that.
+- An individual Promise behaves as future value.
+- We can also think of a Promise as a flow-control mechanism - a temporal this-then-that.
 - Imagine a function `foo(..)` that completes some task now or later, we don't know/ care which.
 - We only need to know when foo(..) finishes so that we can move on to the next task.
     - We'd like to be notified of foo's completion.
 
 - With callbacks, this notification would be a callback function invoked by foo(..).
 
-- With promises we listen for an event from foo(..) and when notified, proceed with the next task.
+- With Promises we listen for an event from foo(..) and when notified, proceed with the next task.
 
 Ideally we could do something like this:
 */
@@ -105,7 +106,8 @@ evt.on( 'failure', function(err){
 
 /*
 - Instead of passing callbacks to foo, it returns an event capability `evt` which receives the callbacks.
-- Inverting the inversion - uninversion - we restore control to the calling code, where we want it to be in the first place.
+- Inverting the inversion - uninversion - we restore control to the calling code, where we wanted it
+ to be in the first place.
 
 - Multiple separate parts of the code can be given the event listening capability, and they can all
 independently be notified when foo(..) completes, in order to perform subsequent steps:
@@ -115,12 +117,12 @@ var evt = foo( 42 );
 // let bar(..) listen to foo's completion
 bar( evt );
 
-// let baz(..) listen to foo's completion
+// let baz(..) listen to foo's completion as well
 baz( evt );
 
 /* Promise Events
 
-- the `evt` event listening capability above is an analogyfor a Promise.
+- the `evt` event listening capability above is an analogy for a Promise.
 - foo(..) would create and return a Promise instance, and that promise would then be passed to bar(..) and baz(..)
 */
 function foo(x) {
@@ -143,7 +145,7 @@ function bar(fooPromise){
     // listen for `foo(..)` to complete
     fooPromise.then(
         function(){
-            // `foo(..)` has now finished, so do `bar(..)`'s task'
+            // `foo(..)` has now finished, so do `bar(..)`'s task
         }
         function(){
             // oops, something went wrong in `foo(..)`
@@ -175,12 +177,16 @@ p.then( baz, oopsBaz );
 /* Thenable Duck Typing
 
 - It is important to know whether something is a Promise (it will be clear why this is the case later on).
-- A thenable is any object/ function that has a `then(..)` method on it. e.g. a Promise.
+
+- A thenable is any object/ function that has a `then(..)` method on it. e.g. a Promise, but there are others.
+
 - Duck typing - type checks that make assumptions about a value's type based on its shape (properties).
+    'If it looks like a duck, quacks like a duck, then it probably is a duck'.
+
 - We can use thenable duck typing to identify promises with the below code.
 - One issue with this is any object/ function with (or prototype linked to an object with)
  a `then` function on it will be identified as a thenable.
-    - For this reason, some libraries will say 'not compatible with promise-based coding'.
+    - For this reason, some libraries will say 'not compatible with Promise-based coding'.
     - And you need to be careful to avoid giving objects 'then' methods.
 */
 if (
@@ -232,7 +238,7 @@ p.then( function(){
 - We can use a `race` to ensure we are notified if a Promise is not resolved.
 - Will look at later so no need to look at here.
 
-Calling (the Callback) Too Few or Too Many  Times
+Calling (the Callback) Too Few or Too Many Times
 - We want the callback to be called once.
 - So too few would be zero, which is equivalent to the 'never' case just discussed.
 - if a Promise tries to call resolve/ reject more than once/ tries to call both, only the first attempt
@@ -251,6 +257,7 @@ rejection callback(s).
 the creation of a Promise, or in the observation of its resolution, that exception will
 be caught, and it will force the Promise in question to become rejected. e.g.:
 */
+
 var p = new Promise( function(resolve,reject){
     foo.bar();      // `foo` is not defined, so error!
     resolve( 42 );  // never gets here!
@@ -267,7 +274,7 @@ p.then(
 );
 
 // `resolve`
-// `Promise.resolve(..)` will make non-Promise non0thenable values into Promises.
+// `Promise.resolve(..)` will make non-Promise non-thenable values into Promises.
 
 var p2 = Promise.resolve( 42 );
 // is equivalent to:
@@ -286,7 +293,7 @@ p1 === p2;      // true
 find the non-thenable value, and package it back up as a valid Promise.
 
 CHAIN FLOW
-Two props of Promises allow us to chain them together to create a sequence of async steps:
+Ther are two properties of Promises allow us to chain them together to create a sequence of async steps:
     1. Every time you call then(..) on a Promise, it creates and returns a new Promise,
     which we can chain with.
     2. Whatever value you return from the then(..) call's fulfillment callback (the first parameter)
@@ -300,54 +307,54 @@ var p = Promise.resolve( 21 );
 p.then( function(v){
     console.log( v );       // 21
 
-    // fulfill the chained promise with value `42`
-    return v * 42;
+    // fulfill the chained Promise with value `42`
+    return v * 2;
 } )
-// here's the chained promise
+// here's the chained Promise
 .then( function(v){
     console.log( v );       // 42
 } );
 
-// If we return a new Promise instead of `v * 42` inside the first `.then`, it will be unwrapped
+// If we return a new Promise instead of `v * 2` inside the first `.then`, it will be unwrapped
 // and passed to the next `then(..)` as in the code above:
 var p = Promise.resolve( 21 );
 
 p.then( function(v){
     console.log( v );       // 21
 
-    // fulfill the chained promise with value `42`
+    // fulfill the chained Promise with value `42`
     return new Promise( function(resolve, reject){
         // fulfill with value `42`
-        resolve( v * 42 );
+        resolve( v * 2 );
     } );
 } )
-// here's the chained promise
+// here's the chained Promise
 .then( function(v){
     console.log( v );       // 42
 } );
 
-// even if we introduce async to that wrapping promise, it will work:
+// even if we introduce async to that wrapping Promise, it will work:
 var p = Promise.resolve( 21 );
 
 p.then( function(v){
     console.log( v );       // 21
 
-    // fulfill the chained promise with value `42`
+    // fulfill the chained Promise with value `42`
     return new Promise( function(resolve, reject){
         // introduce async!
         setTimeout( function(){
             // fulfill with value `42`
-            resolve( v * 42 );
+            resolve( v * 2 );
         }, 100 );
     } );
 } )
-// here's the chained promise
+// here's the chained Promise
 .then( function(v){
     console.log( v );       // 42
 } );
 
 // We can generalise thise with a `delay` function.
-// N.B. the 'next Job' for a promise that is resolved 'immediately'
+// N.B. the 'next Job' for a Promise is resolved 'immediately'
 
 function delay(time) {
     return new Promise( function(resolve,reject){
@@ -379,7 +386,7 @@ delay( 100 )    // step 1
 function request(url) {
     return new Promise( function(resolve,reject){
         // the `ajax(..)` callback should be our
-        // promise's `resolve(..)` function
+        // Promise's `resolve(..)` function
         ajax( url, resolve );
     } );
 }
@@ -392,7 +399,7 @@ request( 'http://some.url.1/')
     console.log( response2 );
 } );
 
-// errors/ exceptions are on a per promise basis:
+// errors/ exceptions are on a per Promise basis:
 
 // step 1:
 request( 'http://some.url.1/')
@@ -421,13 +428,13 @@ request( 'http://some.url.1/')
     console.log( msg );     // 42
 } );
 /*
-- The rejection handler returns a value (42), which fulfills the promise for the next step
+- The rejection handler returns a value, 42, which fulfills the promise for the next step
 and allows the chain to continue in a fulfillment state.
-- If the rejection handler returned a promise, it would have to be unwrapped, which could delay the next step.
-- A thrown error in a fufillmint/ rejection handler causes the next (chained) promise to be rejected
+- If the rejection handler returned a Promise, it would have to be unwrapped, which could delay the next step.
+- A thrown error in a fufillmint/ rejection handler causes the next (chained) Promise to be rejected
 immediately with that error/ exception.
 
-- If you call then(..) on a promise and you only pass a fulfillment handler (i.e no rejection handler),
+- If you call then(..) on a Promise and you only pass a fulfillment handler (i.e no rejection handler),
 JS will assume a default rejection handler.
 - This will simply throw the err, and this err will propagate down the chain until an explicit defined rejection
 handler is encountered.
