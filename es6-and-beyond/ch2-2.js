@@ -357,3 +357,187 @@ re1.lastIndex;          // 0 - reset after previous match failure
 1. `test(..)` uses `lastIndex` as the exact and only position in `str` to look to make a match.
 2. If a match is made, `test(..)` updates `lastIndex` to point to the character immediately following
 the match. If the match if fails, `test(..)` resets `lastIndex` to 0.
+
+Regex Flags
+- You can now inspect the flags of a regex object with the new `flags` property:    */
+var re = /foo/ig;
+
+re.flags;           // 'gi'
+
+// Number Literal Extensions
+// Provides compatibility for oct/ hexidecimal/ binary, which was previsouly just a browser extension.
+var des = 42,
+    oct = 0o52,         // or `0O52`, but avoi as 0O is very confusing
+    hex = 0x2a,         // or `0X2a`
+    bin = 0b101010;     // or `0B101010`
+
+/* Unicode
+- Basic Multilingual Plane (BMP) - set of characters from 0x0000 to 0xFFFF.
+- Astral characters - additional characters beyond BMP uo to 0x10FFFF.
+
+- To express BMP character:         */
+var snowman = '\u2603';
+console.log( snowman );     // ☃
+
+// To express astral prior to ES6, you had to use a surrogate pair:
+var gclef ='\uD834\uDD1E';
+console.log( gclef );       // 𝄞
+
+// In  ES6, we can now do this:
+var glef = '\u{1D11E}';
+console.log( glecf );       // 𝄞
+
+// Unicode-Aware String Operations
+
+// JS still treats an astral symbol as two BMP symbols when we access the length property:
+var snowman = ☃;
+snowman.length;     // 1
+
+var gclef = 𝄞;
+gclef.length;       // 2
+
+// ES6 strings have built in iterators, which happen to be unicode aware.
+// Take advantage of that + use `...` operator. Then access length property on array:
+var gclef = 𝄞;
+[...gclef].length;  // 1
+
+// Not quite so straight forward:
+var s1 = '\xE9',
+    s2 = 'e\u0301'; // the `\u0301` modififes the e to produce the é - known as combining diacritical marks
+
+console.log( s1 );      // é
+console.log( s2 );      // é
+
+[...s1].length;         // 1
+[...s2].length;         // 2 -- oh no!!
+
+// Use `.normalise` utility:
+s1.normalize().length;      // 1
+s2.normalize().length;      // 1
+
+s1 === s2;                  // false
+s1 === s2.normalize();      // true
+
+// This isn't perfect - there may not be a single character for normalise to convert it to.
+
+// Character Positioning
+// We get similar problems with `charAt(..)`, which fails to recognise the atomicity of astral characters/ combined marks:
+
+var s1 = 'abc\u0301d',
+    s2 = 'ab\0107d',
+    s3 = 'ab\u{1d49e}d';
+
+console.log( s1 );          // 'abćd'
+console.log( s2 );          // 'abćd'
+console.log( s3 );          // 'ab𝒞d'
+
+s1.charAt( 2 );             // 'c'
+s2.charAt( 2 );             // 'ć'
+s3.charAt( 2 );             // '' <-- unprintable surrogate
+s3.charAt( 3 );             // '' <-- unprintable surrogate
+
+// ES6 doesn't give us a unicode-aware `charAt`, but we can hack it as:
+[...s1.normalize()][2];     // 'ć'
+[...s2.normalize()][2];     // 'ć'
+[...s3.normalize()][2];     // '𝒞'
+
+// ES6 gives us `codePointAt(..)` as a unicode-aware `charCodeAt(..)`:
+var s1 = 'abc\u0301d',
+    s2 = 'ab\0107d',
+    s3 = 'ab\u{1d49e}d';
+
+s1.normalize().codePointAt( 2 ).toString( 16 );     // '107'
+s2.normalize().codePointAt( 2 ).toString( 16 );     // '107'
+s3.normalize().codePointAt( 2 ).toString( 16 );     // '1d49e'
+
+// And `String.fromCodePoint(..)` for `String.fromCharCode(..)`:
+String.fromCodePoint( 0x107 );      // 'ć'
+String.fromCodePoint( 0x1d49e );    // '𝒞'
+
+// Which we can combine to get a Unicode-aware 'charAt(..)':
+String.fromCodePoint( s1.normalize().codePointAt( 2 ) );    // 'ć'
+String.fromCodePoint( s2.normalize().codePointAt( 2 ) );    // 'ć'
+String.fromCodePoint( s3.normalize().codePointAt( 2 ) );    // '𝒞'
+
+// Symbols
+
+// The `symbol` is a new primitive type added in ES6.
+// Unlike the other types, symbols don't have a literal form.
+
+var sym = Symbol( 'some optional description' );
+typeof sym;         // 'symbol'
+
+// You cannot and should use `new` with `Symbol(..)` - it's not a constructor
+// The description is optional. It is used for stringification.
+sym.toString();     // 'Symbol(some optional description)'
+
+// Symbols are not instances of `Symbol` (like strings are not instances of `String`):
+sym instanceof Symbol;      // false
+
+var symObj = Object( sym );
+symObj instanceof Symbol;   // true
+
+symObj.valueOf() === sym;   // true
+
+// The actualy value of a symbol is an automatically generated, unique string value.
+// You can't read this value, but you can use the variable identifier in place of strings to minimise collisions:
+
+const EVT_LOGIN = Symbol( 'event.login' );
+
+evthub.listen( EVT_LOGIN, function(data) {
+    // ..
+} );
+/*
+- Using `EVT_LOGIN` rather than a generic string literal such as 'event.login' means we are using
+a value that cannot be dupicated by any other value.
+
+- You can use a symbol as a property anem (key) in an object, as a special property that you want to treat as hidden or
+metain usage.
+- It's not actually a hidden/ untouchable property, but it somewhat more obscure that standard properties:      */
+
+const INSTANCE = Symbol( 'instance' );
+
+function HappyFace() {
+    if (HappyFace[INSTANCE]) return HappyFace[INSTANCE];        // only allow one instance of HappyFace module
+
+    function smile() { .. }
+
+    return HappyFace[INSTANCE] = {
+        smile: smile
+    };
+}
+
+var me = HappyFace(),
+    you = HappyFace();
+
+me === you;             // true
+
+// Symbol Registry;
+// Note that in both examples above the symbols are stored in the outer/ global scope.
+// There is sa slight improvement we can make be using the 'global symbol registry' via `Symbol.for`:
+
+const EVT_LOGIN = Symbol.for( 'event.login' );
+const INSTANCE = Symbol.for( 'instance' );
+
+/*
+- The global symbol registry checks if there is already a symbol with the same description. If there is
+it returns it, if not it creates a new one.
+- Therefore the description of each symbol needs to be unique.
+- A good way to do this is to use preix/ context/ namespacing information.
+
+- Symbols won't show up in a standard enumeration over an object's properties:      */
+var o = {
+    foo: 42,
+    [ Symbol( 'bar') ]; 'hello world',
+    baz = true
+};
+Object.getOwnPropertyDescriptor( o );       // [ 'foo', 'baz' ]
+
+// must use this instead:
+Object.getOwnPropertySymbols( o );          // [ Symbol(bar) ]
+
+// Built-in Symbols
+// ES6 has some built-in symbols for various meta behaviours, which are not in the global symbol registry.
+var a = [1,2,3];
+
+a[Symbol.iterator];     // native function
