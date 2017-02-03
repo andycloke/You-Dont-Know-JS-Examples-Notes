@@ -6,7 +6,7 @@ https://github.com/getify/You-Dont-Know-JS/blob/master/async%20%26%20performance
 
 Breaking Run-to-Completion
 - In ch1, we explained the expectation and actuality that once a function starts executing, it runs until
-it completes, and no other code can interrupt and run in between.
+it completes, and no other code can interrupt its running.
 - ES6 generators break this assumption.
 */
 var x = 1;
@@ -14,7 +14,7 @@ var x = 1;
 function foo() {
     x++;
     bar();
-    console.log( 'x: ', x);
+    console.log( 'x:', x);
 }
 
 function bar(){
@@ -32,16 +32,18 @@ var x = 1;
 function *foo() {       .
     x++;
     yield;  // pause!
-    console.log( 'x: ', x );
+    console.log( 'x:', x );
 }
 
 function bar() {
     x++;
 }
 
-// *foo is a generator function. Note these two are both syntically equivalent:
+// *foo is a generator function. Note are of these are both syntically valid:
+function *foo() { .. }
 function* foo() { .. }
 function*foo() { .. }
+function * foo() { .. }
 
 // this is how we use a generator:
 
@@ -66,8 +68,8 @@ var it = foo( 6, 7 );
 // n.b - again that `*foo(..)` hasn't actually run at ths point. we just create an iterator object assigned to `it`
 
 var res = it.next();
-// `it.next()` says advance from the current location and stop at the next `yield` or (as in this case) the end of the function
-// the result of the `next(..)` call is an object with a value property on it, holding the return value (if there is one)
+// - `it.next()` says advance from the current location and stop at the next `yield` or the end of the function (as in this case)
+// - The result of the `next(..)` call is an object with a value property on it, holding the return value (if there is one)
 
 res.value;      // 42
 // n.b. that its `res.value` rather than just `res`
@@ -82,7 +84,7 @@ function *foo(x) {
 var it = foo( 6 );  // create iterator object
 
 // start `foo(..)`
-it.next();          // will start to execute `var y = x`, but pauses at `yield`
+it.next();                  // will start to execute `var y = x`, but pauses at `yield`
 
 var res = it.next( 7 );     // the `(yield)` in foo expects a value to be passed in in this `.next(..)`
 
@@ -155,7 +157,7 @@ Generator-ing Values
 Producers and Iterators
 - imagine you need to produce a series of values where each value has a definable
 relationship to the previous value.
-- we'll need a stateful produce that remembers the last value it gave out.
+- we'll need a stateful producer that remembers the last value it gave out.
 - we can do this using a function closure:
 */
 var gimmeSomething = (function(){
@@ -205,7 +207,7 @@ something.next().value;     // 9
 something.next().value;     // 33
 something.next().value;     // 105
 
-// can use a (ES6)  `for..of` loop with iterators such as this:
+// can use a (ES6) `for..of` loop with iterators such as this:
 for (var v of something) {
     console.log( v );
 
@@ -224,13 +226,13 @@ Iterables
 - The `something` object above is an iterator, since it has the `next()` method on its interface.
 - An iterable is an object that contains an iterator that can iterate over its values.
 
-- As of ES6 you retrieve an iterator from an iterable by making the a method on the iterable with
-the property name Symbol.iterator which returns a fresh new iterator each time it is called.
+- As of ES6 you retrieve an iterator from an iterable by making the a method on the iterable called
+`Symbol.iterator` that returns a fresh new iterator each time it is called.
 
 Here `a` is an iterable:   */
 var a - [1,3,5,7,9];
 
-var it = a[Symbol.iterator]();
+var it = a[Symbol.iterator]();      // remember what we just said about getting an iterator from an iterable
 
 it.next().value;    // 1
 it.next().value;    // 3
@@ -242,7 +244,7 @@ it.next().value;    // 5
 [Symbol.iterator]: function(){ return this; },
 
 /* basically this means when `something` is passed to a `for..of` loop and it looks for
-the `Symbol.iterator` function, which always returns an iterable, the iterable will be
+the `Symbol.iterator` function, which should always return an iterable, the iterable will be
 something (`this`).
 - `something` is therefore both an iterator and an iterable.
 
@@ -277,7 +279,7 @@ for (var v of something()) {
 // 19 33 105 321 969
 
 /* Stopping the Generator
-- 'abnormal completion' of the `foo..of` loop (generally cause by a `break`, `return` or an
+- 'abnormal completion' of the `for..of` loop (generally caused by a `break`, `return` or an
 uncaught exception) sends a signal to the generator's iterator for it to terminate.
 - This avoids the iterator instance of *something() being left in a suspended state.
 
@@ -291,7 +293,7 @@ function *something() {
                 nextVal = 1;
             }
             else {
-                nextVal = (3 * nextVal) + 6;
+                nextVal = (3 * nextVal) + 6;ç
             }
 
             yield nextVal;
@@ -301,7 +303,7 @@ function *something() {
     finally {
         console.log( 'cleaning up! ');
     }
-}
+} 
 
 // or this can be done externally with a `return` call:
 
@@ -321,10 +323,12 @@ for (var v of it) {
 }
 // 1 9 33 105 321 969
 // cleaning up!
+// Hello World
 
 /*
 - the call to `it.return(..)` immediately terminates the generator, so no need for `break`
-- it also returns whatever you passed into it, which is how 'Hello World!' comes straight back out.
+- it also sets the return value to whatever you passed into `return(..)`, which is how 'Hello World!'
+comes straight back out.
 
 Iterating Generators Asynchronously
 
@@ -388,10 +392,10 @@ console.log( data );
 /*
 - The key difference is that `yield` pauses the code in the generator (`*main`), which
 allows the async code to run.
-- When it first runs, yield will return undefined, but thats okay as *main isn't currently
+- When it first runs, yield will return undefined, but that's okay as *main isn't currently
 relying on a yielded value to do anything interesting.
     - at this point `yield` is just being used to pause/block the flow.
-- Once the async `ajax` completes, it will return the data, and restart generator (iterate one tick).
+- Once the async `ajax` completes, it will return the data, and restart the generator (iterate one tick).
 - This means `text` will be given the value of `data`, and we can print it in `*main`.
 
 - Very powerful that we can now have synchronous looking code (see comparison with ch1 above),
@@ -419,7 +423,7 @@ if (err) {
 function *main() {
     var x = yield 'Hello World';
 
-    yield x.toLowerCase();      // cause an exception!
+    yield x.toLowerCase();      // cause an exception - calling `toLowerCase` on `42` - a number!
 }
 
 var it = main();
@@ -493,19 +497,19 @@ p.then(
 - we should use a library/ helper function to run Promise-yielding generators in the manner we've looked at.
 
 Promise Concurrency
-This code is non-optimal, since the second `request` must wait for the first one to complete before it
-can be sent:    */
+The following  code is non-optimal, since the second `request` must wait for the first one
+to complete before it can be sent:    */
 
 function *foo() {
     var r1 = yield request( 'http://some.url.1' );
     var r2 = yield request( 'http://some.url.2' );
 
-    var r3= yield request( 'http://some.url.3/?v=' + r1 + ',' + r2);
+    var r3 = yield request( 'http://some.url.3/?v=' + r1 + ',' + r2);
 
     console.log( r3 );
 }
 
-// using run from library
+// using run from library (iterates through entire generator)
 run( foo )
 
 // optimal approaches:
@@ -534,7 +538,7 @@ function *foo() {
     var r1 = results[0];
     var r2 = results[1];
 
-    var r3 = yield request( 'http://some.url.3/?v=' + r1 + ',' + r2);
+    var r3 = yield request( 'http://some.url.3/?v=' + r1 + ',' + r2 );
 
     console.log( r3 );
 }
@@ -567,10 +571,10 @@ it.next().value;    // 1
 it.next().value;    // 2
 it.next().value;    // `*foo()` starting    // `yield`-delegation occurs
                     // 3
-it.next().value;    //4
+it.next().value;    // 4
 it.next().value;    // '*foo()' finished
                     // 5
-// now if we want to make 3 ajax sequential ajaz requests we canuse `yield`-delegation as so:
+// now if we want to make 3 ajax sequential ajax requests we can use `yield`-delegation as so:
 function *foo() {
     var r2 = yield request( 'http://some.url.2' );
     var r3 = yield request( 'http://some.url.3/?v=' + r2 );
@@ -579,14 +583,14 @@ function *foo() {
 }
 
 function *bar() {
-    var r3 = yield request( 'http://some.url.1' );
+    var r1 = yield request( 'http://some.url.1' );
 
     // delegating to `*foo()` via yield `yield*`
     var r3  = yield *foo();
 
     console.log( r3 );
 }
-// `run` helper function from library runs generator to completion
+
 run( bar );
 
 /*
