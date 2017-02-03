@@ -45,7 +45,7 @@ it.next();      // { value: 3, done: false }
 it.next();      // { value: undefined, done: true }
 /*
 - Each time the method located at `Symbol.iterator` is invoked it returns a new fresh iterator.
-- Most structure will do the same, including all the built-in data structures in JS.
+- Most structures will do the same, including all the built-in data structures in JS.
 
 - Other structures, such as an event queue, might only ever produce a single iterator/ one iterator
 at a time.
@@ -86,9 +86,9 @@ for (var v, res; (res = it.next()) && !res.done; ) {
     console.log( v );
 }
 /*
-- NB that `it.next()` is called before each loop, then res.done is consulted. Once res.done
-is true, we don't execute the contents of the loop. This is why our iterator should only set
-the value of done to true after returning the last value. (which we discussed earlier).
+- NB that `it.next()` is called before each loop, then res.done is consulted. Once `res.done`
+is `true`, we don't execute the contents of the loop. This is why our iterator should only set
+the value of `done` to `true` after returning the last value. (which we mentioned earlier).
 
 Custom Iterators
 
@@ -129,20 +129,21 @@ for (var v of Fib) {
 /*
 - The `Fib[Symbol.iterator]()` method when called returns the iterator object with `next()` and
 `return()` methods on it.
-- State is maintained via n1 and n2 variables.
+- State is maintained via the `n1` and `n2` variables.
 
 Generators
 
-- A generator can pause itself in mid-execution, and be resumed either right way or at later time.
+- A generator can pause itself in mid-execution, and be resumed either right way or at a later time.
 - Each pause/ resume cycle in mid-execution is an opportunity for two-way message passing.
 
-Generators declared as in any of the following ways:     */
+Generators declared as in any of the following ways:
+*/
 function *foo() { .. }
 function* foo() { .. }
 function * foo() { .. }
 function*foo() { .. }
 
-// There's a concise generator form in object literals:
+// There's a concise generator form available in object literals:
 var a = {
     *foo() { .. }
 };
@@ -156,7 +157,7 @@ function *foo() {
 
     var z = x + y;
 }
-// you use them by producing an iterator via a function call on the generator, then calling the
+// You use them by producing an iterator via a function call on the generator, then calling the
 // `next` method on the iterator:
 var it = foo();
 it.next();
@@ -169,7 +170,7 @@ function *foo() {
 }
 
 // `yield` both sends a value out, and can accept one from the `it.next` call when used as `var x = yield`.
-// yeild is of the same 'expression precedence' (like operator precedence) as an assignment expression:
+// `yeild` is of the same 'expression precedence' (like operator precedence) as an assignment expression `(=)`:
 var a, b;
 
 a = 3;                  // valid
@@ -184,23 +185,22 @@ b = 2 + (yield 3);      // valid
 yield 2 + 3;            // same as `yield (2 + 3)`
 (yield 2) + 3;          // `yield 2` first, then `+ 3`
 
-/*
-- `yield` is right-associative, like `=`.
+/* - `yield` is right-associative, like `=`.
 
 `yield *`
 
 - `yield *` is used for 'yield delegation'.
 - `yield *` requires an iterable.
 - It invokes that iterable's iterator and delegates its own host generator's control to that iterator
-until its exhausted.
+until it's exhausted.
 - e.g. in the following example, [1,2,3] produces an iterator that will step through its value,
-so the *foo() generator will yield those value out as it is consumed.       */
-
+so the *foo() generator will yield those value out as it is consumed.
+*/
 function *foo() {
     yield *[1,2,3];
 }
 
-// equivalent to:
+// Is equivalent to:
 function *bar() {
     yield 1;
     yield 2;
@@ -231,8 +231,9 @@ for (var v of foo()) {
 // 1 2 3        // values yeiled out of `*bar()`
 // x: 4         // return value of `*bar()`, assigned to `x`
 
-// This allows to perform a sort of generator recursion by calling itself
-// (easiest to visualise as each call to itself creating a copy of the function and delegating to that copy)
+// This allows us to perform a sort of generator recursion by calling itself
+// (easiest to visualise as each call to itself creating a copy of the function
+// and `yield`-delegating to that copy)
 
 function *foo(x) {
     if (x < 3) {
@@ -240,7 +241,7 @@ function *foo(x) {
     }
     return x * 2;
 }
-// Running through foo( 1 ) and callling `it.next` would be 24 - 3 * 2 * 2 * 2
+// Running through foo( 1 ) and callling `it.next` would be 24 (3 * 2 * 2 * 2)
 
 // Iterator Control
 
@@ -258,7 +259,7 @@ it.next();          // { value: 3, done: false }
 
 it.next();          // { value: undefined, done: false }
 
-// each `yield` pauses the program and waits for an optional value. So there'll be one
+// each `yield` pauses the program and waits for an optional value. So there'll be one more
 // `it.next()` than the number of `yield`s:
 
 function *foo() {
@@ -295,10 +296,11 @@ it.return( 42 );    // { value: 42, done: true }
 it.next();          // { value: undefined, done: true }
 /*
 - `return(x)` forces an immediate return `x` to be processed.
-- It can be called mnually, as above, and is also called at the end of any construct
+- It can be called manually, as above, and is also called at the end of any construct
 that consumes an iterators (e.g. for..of loops and the `...` operator).
 - It allows the generator to do any cleanup tasks.
-- The main way to use it is with a `finally` clause:    */
+- The main way to use it is with a `finally` clause:
+*/
 function *foo() {
     try {
         yield 1;
@@ -352,7 +354,6 @@ try {
 catch (err) {
     console.log( err );     // Hello!
 }
-
 // Modules
 
 // Pre-ES6 modules are based on an outer function with inner function which are exposed via
@@ -401,8 +402,8 @@ properties/ methods mean the external bindings to them will now resolve to the n
 
 - `export` can be:
     1. Put in front of a declaration.
-    2. Used as an operator (of sorts).      */
-
+    2. Used as an operator (of sorts).
+*/
 export function foo() {
     // ..
 }
@@ -420,18 +421,18 @@ var awesome = 42;
 var bar = [1,2,3];
 
 export { foo, awesome, bar };
-
-/* These are called named exports, since you're exporting name bindings of the variables/ functions.
+/*
+These are called named exports, since you're exporting name bindings of the variables/ functions.
 - Anything you don't `export` will stay private in the scope of the module.
 - There is no global scope in modules - the top level of scope is the module itself
-(which these private variable might be in).
+(which these private variables might be in).
 
 You can rename (alias) a module member during named export:     */
 function foo() { .. }
 
 export { foo as bar };
 
-// Module exports are node just normal assignments of values/ references, but 'bindings', kind of
+// Module exports are not just normal assignments of values/ references, but 'bindings', kind of
 // like pointers.
 
 var awesome = 42;
@@ -439,45 +440,45 @@ export { awesome };
 
 // later
 awesome = 100;
-
-/* - Even if we'd imported awesome before the last line, it's value would be 100.
+/*
+- Even if we'd imported awesome before the last line, it's value would be 100.
 - This is because the binding is essentially a reference/ pointer to the value, not a copy.
 - You should use one export only in a module for each method/ property.
-- The `default` keyword sets the deafult exported binding.  */
-
+- The `default` keyword sets the deafult exported binding.
+*/
 function foo(..) { .. }
 export { foo as default };  // this has the behaviour described above:
-                            // future changes to foo will be seen by modules that import it
+                            // future changes to `foo` will be seen by modules that import it
 
 function foo(..) { .. }
 export default foo;
-
-/* This second approach only exports an expression value binding to `foo`'s expression
-at this point in time. Its name would be `default. Which is different to the top approach,
+/*
+This second approach only exports an expression value binding to `foo`'s expression
+at this point in time. Its name would be `default`. Which is different to the top approach,
 which exports a binding to the local identifer.
 - Therefore future changes to `foo` in the exporting module (this one) won't be seen by
-importing module(s). Use only if foo isn't going to change.
+importing module(s). Use only if `foo` isn't going to change.
 
 You can re-export another module's exports, such as:    */
-export { foo, bar } from 'baz';     // equivalent to import `foo` and `bar` from baz, then export them as `foo` and `bar`
-export { foo as FOO, bar as BAR } from 'baz';     // equivalent to import `foo` and `bar` from baz, then export them as `FOO` and `BAR`
-export * from 'baz';     // equivalent to import everything from baz, then export it with its original names
+export { foo, bar } from 'baz';                 // equivalent to import `foo` and `bar` from `baz`, then export them as `foo` and `bar`
+export { foo as FOO, bar as BAR } from 'baz';   // equivalent to import `foo` and `bar` from `baz`, then export them as `FOO` and `BAR`
+export * from 'baz';                            // equivalent to import everything from `baz`, then export it with its original names
 
 // Importing API Members
 
-import { foo, bar, baz } from 'foo';        // to import specific named members of a module's API
+import { foo, bar, baz } from 'foo';            // to import specific named members of a module's API
 
 foo();
-
-/* - 'foo' must be a string. It can't be an identifer - We want statically analyzable code.
+/*
+- 'foo' must be a string. It can't be an identifer - We want statically analyzable code.
 - It is called a module specifier.
 - It will interpreted by the module loader as a URl path or local filesystem path.
 
-- The foo, baz and bar identifers listed above must match named exports on the module's API.
+- Note that despite the similar looking syntax ( {} ) this is different to object destructuring/ literals.
 
-- Note that despite the similar looking syntax, {}, this is different to object destructuring/ literals.
-
-- You can rename them as so: */
+- The `foo`, `baz` and `bar` identifers listed above must match named exports on the module's API.
+- You can rename them as so:
+*/
 import { foo as theFooFunc } from 'foo';
 
 theFooFunc();
@@ -534,7 +535,8 @@ Classes
 - Remember from 'this & Object Prototypes' that JS classes aren't real classes.
 
 `class`
-- ES6 introduces this syntax:       */
+- ES6 introduces this syntax:
+*/
 class Foo {
     constructor(a,b){
         this.x = a;
@@ -549,7 +551,8 @@ class Foo {
 - Methods use the same 'concise method' syntax as that discussed for objects.
 - Unlike object literals, there are no commas separating members - they're not allowed!
 
-Most class-like thing in pre-ES6 syntax:        */
+Most class-like thing in pre-ES6 syntax:
+*/
 function Foo(a,b) {
     this.x = a;
     this.y = b;
@@ -571,8 +574,8 @@ f.gimmeXY();    // 75
 - ES6 `class Foo` in the top global scope creates a lexical `Foo` identifier, but does not create a
 global object property of that name (which the pre-ES6 `function Foo` does.)
 
-`extends` and `super`   */
-
+`extends` and `super`
+*/
 class Bar extends Foo {
     constructor(a,b,c) {
         super( a, b );
@@ -600,4 +603,5 @@ b.gimmeXYZ();       // 1875
 - A subclass will use its parent class's constructor as a default constructor - different to pre-ES6 'classes'.
 
 - ES6 classes allow you to extend the built-in natives, e.g. give arrays a `first` property that returns
-their first element.    */
+their first element.
+*/
