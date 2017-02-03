@@ -17,17 +17,17 @@ var a = 2;
 console.log( a );           // 2
 
 // `let` Declarations
-// In ES6 we can do so create scope for any block using `let` declaratons:
+// In ES6 we can create scope for any block using `let` declaratons:
 
 var a = 2;
 
-{    let a = 3;         // stylistically good to put declarations on same line as block - indicates what the block is for.
+{   let a = 3;          // stylistically good to put declarations on same line as block - indicates what the block is for.
     console.log( a );   // 3
 }
 
 console.log( a );       // 2
 
-// Accessing a let variable earlier than its declaration causes an error:
+// Accessing a `let` variable earlier than its declaration causes an error:
 // Technically called a Temporal Dead Zone (TDZ) error.
 {
     console.log( a );       // undefined
@@ -37,9 +37,9 @@ console.log( a );       // 2
     var b;
 }
 
-// `typeof` behaves differently for TDZ variables than for undeclared/ declared variables.
+// Perhaps strangely, `typeof` behaves differently for TDZ variables than for undeclared/ declared variables.
 {
-    // `a` is not declared, therefore we will enter this if statement
+    // `a` is not declared, therefore we will enter into the following if statement:
     if (typeof a === 'undefined') {
         console.log( 'cool' );
     }
@@ -53,9 +53,10 @@ console.log( a );       // 2
 
     let b;
 }
+
 /*
 - For these reasons we should put `let` declarations at the top of their scope.
-- This makes it more 'explicit' what variables o a block contains.
+- This makes it more 'explicit' what variables a block contains.
 
 let+for
 - The only exception to this 'explicit' preference is `let` declarations in the head of for loops,
@@ -76,8 +77,9 @@ funcs[3]();     // 3
 because there'd only be one i in the outer scope that was closed over.
 
 `const` Declarations
+
 - `const` creates constants, which are block scoped in the same way that `let` variables are,
-but they are read only once their value is set.
+but they are read only once their value is set, i.e. constant variables!
 - `const`s must be initialised to a value when they are declared, so if you wanted a `const`
 with the undefined value, you'd need to set it as `const a = undefined`.    */
 {
@@ -98,13 +100,13 @@ with the undefined value, you'd need to set it as `const a = undefined`.    */
 - `const` might be slightly quicker than `var`/ `let`, but we don't really know.
 - Some developers propose using `const` for every variable, then chaning to `let` as and when
 you need it, in order to avoid 'accidentally' changing values, but really anyone can just change
-a `const` to a `let` without thinking about it too much.
+a `const` to a `let` without thinking about it too much, so this approach doesn't acheive that much.
+
 - A better approach is to use `const` when you genuinely don't want to change the value of a variable,
 which will help readability/ understandability of your code.
 
 Block-Scope Functions
-- Functions are now scoped to blocks:   */
-
+- Functions are now scoped to blocks: */
 {
     foo();          // works!
 
@@ -117,7 +119,7 @@ foo();              // ReferenceError
 
 /* Spread/ Rest
 - `...` operator in ES6 is known as the spread or rest operator.
-- When used in front of an iterable, it 'spreads' out its individual values.    */
+- When used in front of an iterable, it 'spreads' out the iterable's individual values.    */
 
 function foo(x,y,z) {
     console.log( x, y, z );
@@ -126,9 +128,9 @@ foo( ...[1,2,3] );      // 1 2 3
 
 // Or:
 var a = [2,3,4];
-var b = [ 1, ...a, 5];
+var b = [ 1, ...a, 5 ];
 
-console.log( b );       // [`1,2,3,4,5`]
+console.log( b );       // [1,2,3,4,5]
 
 // Other common use is essentially the opposite:
 // 'Gather the rest of the arguments into an array called z'
@@ -144,12 +146,12 @@ function foo(...args) {
     console.log( args );
 }
 
-foo( 1, 2, 3, 4, 5);        // [1,2,3,4,5]
-/*
-- Provides a good alternative to using the old `arguments` array-like object.
+foo( 1, 2, 3, 4, 5 );        // [1,2,3,4,5]
 
-Default Parameter Values
-- Traditionally default parameter values are done like this:        */
+// Provides a good alternative to using the old `arguments` array-like object.
+
+// Default Parameter Values
+// Traditionally default parameter values are done like this:
 
 function foo(x,y) {
     x = x || 11;
@@ -177,8 +179,8 @@ function foo(x,y) {
 foo( 0, 42 );   // 42
 foo( undefined, 6 );   // 17
 
-// of course there is now the issue that we can't pass in and use `undefined`
-// we can do:
+// Of course there is now the issue that we can't pass in and use `undefined`
+// We could do:
 
 function foo(x,y) {
     x = (0 in arguments) ? x : 11;
@@ -190,7 +192,7 @@ function foo(x,y) {
 foo( 5 );               // 36
 foo( 5, undefined );    // NaN
 
-// Howeever there is now no way to omit the first value, and just pass in a y.
+// However there is now no way to omit the first value, and just pass in a y.
 
 // Luckily ES6 provides us with default parameter value syntax as so:
 
@@ -234,6 +236,8 @@ function bar() {
     };
 }
 
+var tmp = bar(), x = tmp.x, y = tmp.y, z = tmp.z;
+
 console.log( x, y, z );     // 4 5 6
 
 // ES6
@@ -246,10 +250,12 @@ var { x, y, y } = bar();
 
 console.log( x, y, z );     // 4 5 6
 
-// We are leaving of the `x: ` part, rather than the `: x` part.
+// NB: we are leaving off the `x: ` part, rather than the `: x` part.
 // e.g. we could do:
 var { x: bam, y: baz, z: bap } = bar();
+
 console.log( bam, baz, bap );               // 4 5 6
+
 console.log( x, y, z );                     // ReferenceError
 
 // We essentially flip the `target: source` (or 'property-alias: value') pattern from normal object
@@ -258,8 +264,8 @@ console.log( x, y, z );                     // ReferenceError
 var aa = 10, bb = 20;
 
 var o = { x: aa, y: bb };
-var     { x: AA, y: BB } = o;   // get the source value of `x` from object o and assign it as the value of variable `AA`
-                                // likewise for BB
+var     { x: AA, y: BB } = o;   // get the source value of `x` from object `o` and assign it as the value of variable `AA`
+                                // likewise for `BB`
 
 console.log( AA, BB );          // 10 20
 
@@ -267,7 +273,7 @@ console.log( AA, BB );          // 10 20
 var a, b, c, d, e, f;
 
 [a,b,c] = foo();
-( { x, y, z } = bar ());    // n.b. must be wrapped in () to avoid { being treated as block scoping
+( { x, y, z } = bar ());    // NB whole thing must be wrapped in `()` to avoid `{` being treated as block scoping
 
 console.log( a, b, c );     // 1 2 3
 console.log( x, y, z );     // 4 5 6
@@ -276,7 +282,7 @@ console.log( x, y, z );     // 4 5 6
 var o = {};
 
 [o.a, o.b, o.c] = foo();
-( { x: o.x, y: o.y, z; o.z } );     // remembr - 'source: target'
+( { x: o.x, y: o.y, z: o.z } = bar() );     // remember - 'source: target'
 
 console.log( o.a, o.b, o.c );       // 1 2 3
 console.log( o.x, o.y, o.z );       // 4 5 6
@@ -302,7 +308,7 @@ var x = 10, y = 20;
 
 console.log( x, y );   // 20 10
 
-// Repeated Assingments
+// Repeated Assignments
 // We can use the object destructuring form to list a source property multiple times:
 
 var { a: X, a: Y } = { a: 1 };
@@ -329,7 +335,7 @@ a;  // { x: 1 }
 ( {
      a: X,
      a : Y,
-      a: [ Z ]
+     a: [ Z ]
   } = {
       a: [ 1 ]
   }
@@ -348,8 +354,10 @@ var { x, z } = bar();
 
 console.log( b, x, z );     // 2 4 6
 
-// assigning too many wil lfall back to undefined.
+// assigning too many will fall back to `undefined`.
+
 // the `...` gather operator works as expected:
+
 var a = [ 2, 3, 4 ];
 var [ b, ...c, ] = a;
 
@@ -363,7 +371,7 @@ var { x = 5, y = 10, z = 15, w = 20 } = bar();
 console.log( a, b, c, d );      // 1 2 3 12
 console.log( x, y, z, w );      // 4 5 6 20
 
-// Or;
+// Or:
 var { x, y, z, w: WW = 20 } = bar();
 
 console.log( x, y, z, WW );         // 4 5 6 20

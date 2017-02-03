@@ -7,7 +7,7 @@ Object Literal Extensions
 - ES6 adds some convenient extensions to the {..} object literal syntax.
 
 Concise Properties
-Can now replace this:            */
+Can now replace this: */
 var x = 2, y = 3,
     o = {
         x: x,
@@ -22,7 +22,7 @@ var x = 2, y = 3,
     };
 
 // Concise Methods
-// fomerly:
+// formerly:
 var o = {
     x: function(){
         // ..
@@ -42,7 +42,7 @@ var o = {
     }
 }
 
-// we can do consise generator methods:
+// we can also do concise generator methods:
 var o = {
     *foo() { .. }
 };
@@ -53,7 +53,7 @@ they are equivalent to anonymous functions in pre-ES6 syntax, which do not work 
 
 ES5 Getter/ Setter
 - Getters/ setters added in ES5 but lack of transpilers meant they weren't used much.
-    => Very much like a new ES6 feature.    */
+=> Very much like a new ES6 feature. */
 var o = {
     _id: 10,
     get id() { return this._id++; },
@@ -81,7 +81,7 @@ o[ prefix + 'foo' ] = function(..){ .. };
 o[ prefix + 'bar' ] = function(..){ .. };
 //..
 
-// in ES6 we can do it like this:
+// in ES6 we can do it as part of the object literal, like this:
 var prefix = '_user';
 
 var o = {
@@ -92,7 +92,7 @@ var o = {
 };
 
 // Setting [[Prototype]]
-// Largely for compatibility reasons, an object's protoype can be set as so:
+// Largely for compatibility reasons, an object's protoype can now be set as so:
 
 var o1 = {
     // ..
@@ -124,10 +124,11 @@ o2.foo();       // o1:foo
                 // o2:foo
 
 /* Template Literals
-- Badly named - nothing to do with templating engines (handlebars etc).
-- Should think of as 'interpolated string literals' - interpoliterals.
-Old method:     */
 
+- Badly named - nothing to do with templating engines (moustache, handlebars etc).
+- Should think of as 'interpolated string literals' - interpoliterals.
+Old method:
+*/
 var name = 'Kyle';
 
 var greeting = 'Hello ' + name + '!'
@@ -145,7 +146,7 @@ console.log( greeting );            // 'Hello Kyle'
 console.log( typeof greeting );     // 'string'
 
 // The `` ensure it is a string literal and the ${..} is parsed and evaluated inline.
-// Interpolated string literals allows us to preserve new line breaks;
+// Interpolated string literals also allow us to preserve new line breaks:
 
 var text =
 `Now is the time for all good men
@@ -188,8 +189,8 @@ need the ( .. ).
 - What is passed to this function?
     1. The first argument (strings) is any plain strings between the ``.
     2. The second argument is anything else, which is gathered up with the ... operator.
-- Typically this function should comput an appropriate an string value.     */
-function tag(strings, ...values) {
+- Typically this function should compute and return an appropriate string value.     */
+function tag(strings, ...values) {      // `tag` doesn't do anything, just turn input into array, then splices that array into a string.
     return strings.reduce( function(s,v,idx) {
         return s + (idx > 0 ? values[idx-1] : '') + v;
     }, '');
@@ -199,7 +200,7 @@ var desc = 'awesome';
 
 var text = tag`Everything is ${desc}!`;
 
-console.log( text );
+console.log( text );        // Everything is awesome!
 
 // Raw strings - ES6 includes the following built-in function:
 
@@ -223,6 +224,7 @@ function foo(x,y) {
 var foo = (x,y) => x + y;
 
 // The arrow function is everything from `(x,y)` onwards, it just happens to be assigned to foo.
+// NB the lack of outer { }.
 
 // Other arrow functions:
 var f1 = () => 12;
@@ -234,10 +236,10 @@ var f3 = (x,y) => {
     return (x + y + z) / 2;
 };
 /*
-- Arrow functions are always function expressions, not function declarations.
+- Arrow functions are always function expressions. There are not function declarations.
 - They are anonymous function expressions - they have no named reference for the purposes of
 recursion or event binding/ unbinding.
-- Arrow functions are for short, single statement utility (callback) functions:
+- Arrow functions are good for short, single statement utility (callback) functions:
 */
 var a = [1,2,3,4,5];
 
@@ -249,7 +251,9 @@ the outer {..} can even worsen readability.
 - Loosely, the readability gains of using arrow function notation are inversely proportional to the
 length of the function.
 
-- Arrow function's primary purpose is to alter the behaviour of `this` in a specific way.   */
+- Arrow function's primary purpose is actually to alter the behaviour of `this` in a specific way.
+- Consider this pre-ES6 hack:
+*/
 var controller = {
     makeRequest: function(..){
         var self = this;
@@ -265,7 +269,9 @@ var controller = {
 function is the same as that within makeRequest(..) itself.
 - We avoid the dynamic nature of `this` bindings, and fall back to the predictability of lexical scope.
 
-- `this` bindings in arrow functions have lexical scope, rather than being dynamic:     */
+- `this` bindings in arrow functions have lexical scope, rather than being dynamic, so arrow
+functions acheive the same functionality as the above hack:
+*/
 var controller = {
     makeRequest: function(..){
         btn.addEventListener( 'click', () => {
@@ -277,7 +283,7 @@ var controller = {
 /*
 - We should therefore also use arrow functions for inner function expressions that rely on either
 the `var self = this` or `.bind(this)` hacks.
-    - N.B. But not when we don't- as this will cause issues.
+    - N.B. But never when we don't require these, as doing so will cause issues.
 
 - We should also use them for short, single-statement inline function expressions in order to
 improve readability, as discussed above.
@@ -365,6 +371,7 @@ var re = /foo/ig;
 re.flags;           // 'gi'
 
 // Number Literal Extensions
+
 // Provides compatibility for oct/ hexidecimal/ binary, which was previsouly just a browser extension.
 var des = 42,
     oct = 0o52,         // or `0O52`, but avoi as 0O is very confusing
@@ -375,15 +382,16 @@ var des = 42,
 - Basic Multilingual Plane (BMP) - set of characters from 0x0000 to 0xFFFF.
 - Astral characters - additional characters beyond BMP uo to 0x10FFFF.
 
-- To express BMP character:         */
+- To express BMP character:
+*/
 var snowman = '\u2603';
 console.log( snowman );     // ☃
 
-// To express astral prior to ES6, you had to use a surrogate pair:
+// To express an astral character prior to ES6, you had to use a surrogate pair:
 var gclef ='\uD834\uDD1E';
 console.log( gclef );       // 𝄞
 
-// In  ES6, we can now do this:
+// In  ES6, we can now express astral characters using `{}`:
 var glef = '\u{1D11E}';
 console.log( glecf );       // 𝄞
 
@@ -467,8 +475,9 @@ String.fromCodePoint( s3.normalize().codePointAt( 2 ) );    // '𝒞'
 var sym = Symbol( 'some optional description' );
 typeof sym;         // 'symbol'
 
-// You cannot and should use `new` with `Symbol(..)` - it's not a constructor
-// The description is optional. It is used for stringification.
+// You cannot use `new` with `Symbol(..)` - it's not a constructor
+
+// The description is optional. It is used for stringification:
 sym.toString();     // 'Symbol(some optional description)'
 
 // Symbols are not instances of `Symbol` (like strings are not instances of `String`):
@@ -493,7 +502,8 @@ a value that cannot be dupicated by any other value.
 
 - You can use a symbol as a property anem (key) in an object, as a special property that you want to treat as hidden or
 metain usage.
-- It's not actually a hidden/ untouchable property, but it somewhat more obscure that standard properties:      */
+- It's not actually a hidden/ untouchable property, but it somewhat more obscure that standard properties:
+*/
 
 const INSTANCE = Symbol( 'instance' );
 
@@ -525,7 +535,8 @@ it returns it, if not it creates a new one.
 - Therefore the description of each symbol needs to be unique.
 - A good way to do this is to use preix/ context/ namespacing information.
 
-- Symbols won't show up in a standard enumeration over an object's properties:      */
+- Symbols won't show up in a standard enumeration over an object's properties:
+*/
 var o = {
     foo: 42,
     [ Symbol( 'bar') ]; 'hello world',
