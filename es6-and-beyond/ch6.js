@@ -47,7 +47,7 @@ var arrLike = {
 // Often have to be converted into an array to call array methods on them (e.g. `indexOf(..)`):
 var arr = Array.prototype.slice.call( arrLike );
 
-// or to dupiclate:
+// or to duplicate:
 var arr2 = arr.slice();
 
 // ES6 `Array.from(..)` makes this much easier:
@@ -176,7 +176,7 @@ Number.isNaN( a );      // true
 Number.isNaN( b );      // false -- fixed
 Number.isNaN( c );      // false
 
-// `Number.isFinite(..)` - looses the coercion of the pre-ES6 `isFinite(..)`:
+// `Number.isFinite(..)` - omits the coercion of the pre-ES6 `isFinite(..)`:
 var a = NaN, b = Infinity, c = 42, d = '42';
 
 Number.isFinite( a );               // false

@@ -95,7 +95,7 @@ var b = new Child();
 // A child instantiated
 
 /* Well-Known Symbols
-- There are several built-in symbols designed to expose special meta properties.
+- There are several built-in symbols designed to expose special meta-properties.
 
 Symbol.iterator
 - `Symbol.iterator` represents the special location (property) where the language mechanims (`...` and `for..of`)
@@ -132,7 +132,7 @@ if present.
 - `[Symbol.species]` allows you to overwrite this behaviour and change the constructor used.
 
 - `[Symbol.toPrimitive]` allows you to set the primitive value that an object will be coerced to for
-cetain operations (e.g. == ).
+certain operations (e.g. == ).
 
 - `[Symbol.match]` is the method used to match all or part of a string value with the given regex.
 
@@ -166,7 +166,7 @@ with (o) {
 - Proxies (new in ES6) are objects that 'wrap' other objects.
 - Special handlers (traps) can be registered on the proxy. These handlers are called when various operations
 are performed agaisnt the proxy.
-    - These handlers can therefore perfrom extra logic, as well as forwarding the operations on to the original
+    - These handlers can therefore perform extra logic, as well as forwarding the operations on to the original
     target/ wrapped object.
 
 - For example,we can register a `get` trap on a proxy, which intercepts the [[Get]] operation when you
@@ -202,7 +202,7 @@ if (!Number.isNaN) {
     };
 }
 
-// What if we want to test for features that involce new syntax?
+// What if we want to test for features that involve new syntax?
 // We should use the `Function(..)` constructor:
 try {
     new Function( '( () => {} )' );
@@ -212,7 +212,7 @@ catch (err) {
     ARROW_FUNCS_ENABLED = false;
 }
 /*
-- Different to the `.isNaN` test above, in that if the syntax isnt supported, it literally can't appear
+- Different to the `.isNaN` test above, in that if the syntax isn't supported, it literally can't appear
 in your file without causing an error (so polyfilling is not appropriate).
 - Instead we'd use tests like this one to determine which JS file to load.
 - Supplying two different JS files like this is known as split delivery, and is more performant than

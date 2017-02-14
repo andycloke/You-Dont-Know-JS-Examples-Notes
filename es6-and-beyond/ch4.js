@@ -1,4 +1,4 @@
-/* Chapter 4: Async Flow Control
+ /* Chapter 4: Async Flow Control
 Notes and example code from ch4 of the ES6 & Beyond book in the YDKJS series
 https://github.com/getify/You-Dont-Know-JS/blob/master/es6%20%26%20beyond/ch4.md
 
@@ -7,7 +7,7 @@ https://github.com/getify/You-Dont-Know-JS/blob/master/es6%20%26%20beyond/ch4.md
 Promises
 
 - Think of Proises as event listeners, upon which you can register to listen for an event
-that lets you know when a task hs completed.
+that lets you know when a task has completed.
 - Promises can be chained together, to create a series of async completing steps.
 - `all(..)` (a 'gate' in classic terms) and `race(..)` (a latch) can be used to provide an
 approximation of async flow control.
@@ -17,9 +17,9 @@ around a value.
     - This container can be reasoned about in the same way whether the underlying value is final
     or not.
 - Eventually the Promise will resolve, and either be fulfilled or rejected.
-- There will be no further rejection/ fullfillment, so this final value it this immutable.
+- There will be no further rejection/ fullfillment, so this final value is immutable.
 - Clearly Promises provide order, predictability and trustability when compared to callbacks-only
-async.
+async coding patterns.
 
 Making and Using Promises
 */
@@ -33,7 +33,7 @@ the reason for rejection.
 - If you call `resolve(..)` and pass another promise, this promise simply adopts the state - immediate
 or eventual - of the passed Promise.
 
-How to refactor a callback reliant ajax function:
+How to refactor a callback-reliant ajax function:
 */
 function ajax(url,cb) {
     // make request, eventually call `cb(..)`
